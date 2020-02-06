@@ -1,5 +1,7 @@
-!include/
-*
-/*
-!include/*
-!.gitignore
+FicherosParaComprobarEntregaDelTokenizadorEnElServidor/
+FicherosPruebaTokenizador/
+Materiales Tokenizador/
+Refs/
+corrigeAlumno.sh
+memory.cpp
+*/*.o
