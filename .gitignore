@@ -1,7 +1,14 @@
-FicherosParaComprobarEntregaDelTokenizadorEnElServidor/
-FicherosPruebaTokenizador/
-Materiales Tokenizador/
-Refs/
-corrigeAlumno.sh
-memory.cpp
-*/*.o
+#FicherosParaComprobarEntregaDelTokenizadorEnElServidor/
+#FicherosPruebaTokenizador/
+#Materiales Tokenizador/
+#Refs/
+#corrigeAlumno.sh
+#memory.cpp
+#*/*.o
+
+# Ignora todo
+*
+
+# Excepto los ficheros .cpp y .h
+!*/*.cpp
+!*/*.h
