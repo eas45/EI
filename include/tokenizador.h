@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <list>
+#include <string>
 
 using namespace std;
 
@@ -18,6 +19,7 @@ class Tokenizador {
   bool pasarAminuscSinAcentos;      // Pasará a minúsculas y quitará acentos (antes de tokenizar)
 
   void copia(const Tokenizador&);
+  bool filtrarDelimitadores(const string&) const;
 
   public:
   Tokenizador (const string&, const bool&, const bool&);

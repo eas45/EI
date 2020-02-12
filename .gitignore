@@ -7,8 +7,8 @@
 #*/*.o
 
 # Ignora todo
-*
+#*
 
 # Excepto los ficheros .cpp y .h
-!*/*.cpp
-!*/*.h
+#!*/*.cpp
+#!*/*.h

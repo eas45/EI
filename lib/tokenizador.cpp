@@ -80,3 +80,10 @@ void Tokenizador::copia (const Tokenizador& token) {
   casosEspeciales = token.CasosEspeciales();
   pasarAminuscSinAcentos = token.PasarAminuscSinAcentos();
 }
+
+bool Tokenizador::filtrarDelimitadores (const string& nuevoDelimiters) const {
+  short pos = 0;                            // Variable auxiliar para
+  char c = *nuevoDelimiters.begin();        // Selecciona el primer carácter delimitador
+
+
+}
