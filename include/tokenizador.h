@@ -18,8 +18,7 @@ class Tokenizador {
   bool casosEspeciales;             // Detectará palabras compuestas y casos especiales
   bool pasarAminuscSinAcentos;      // Pasará a minúsculas y quitará acentos (antes de tokenizar)
 
-  void copia(const Tokenizador&);
-  bool filtrarDelimitadores(const string&) const;
+  void Copia(const Tokenizador&);
 
   public:
   Tokenizador (const string&, const bool&, const bool&);
@@ -73,5 +72,7 @@ class Tokenizador {
 
   bool PasarAminuscSinAcentos () const; 
 };
+// Número de delimitadores posibles
+static const short N_DELIMITERS = 36;
 
 #endif

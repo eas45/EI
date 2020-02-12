@@ -5,35 +5,44 @@
  ******************/
 
 // Constructor por defecto
-Tokenizador::Tokenizador () {
+Tokenizador::Tokenizador ()
+{
   delimiters = ",;:.-/+*\\ '\"{}[]()<>¡!¿?&#=\t\n\r@";
   casosEspeciales = true;
   pasarAminuscSinAcentos = false;
 }
 
 Tokenizador::Tokenizador (const string& delimitadoresPalabra, const bool& kcasosEspeciales,
-                          const bool& minuscSinAcentos) {
-  // TODO : ¡¡ Filtrar delimitadores !!
-  delimiters = delimitadoresPalabra;
+                          const bool& minuscSinAcentos)
+{
+  if (delimiters.size() < N_DELIMITERS)
+  { // Se puede dar el caso de encontrar un nuevo delimitador
+    AnyadirDelimitadoresPalabra(delimitadoresPalabra);
+  }
   casosEspeciales = kcasosEspeciales;
   pasarAminuscSinAcentos = minuscSinAcentos;
 }
 
 // Constructor de copia
-Tokenizador::Tokenizador (const Tokenizador& token) {
-  copia(token);
+Tokenizador::Tokenizador (const Tokenizador& token)
+{
+  Copia(token);
 }
 
 // Destructor
-Tokenizador::~Tokenizador () {
+Tokenizador::~Tokenizador ()
+{
   delimiters = "";
 }
 
 // Operador asignación
-Tokenizador& Tokenizador::operator= (const Tokenizador& token) {
-  if (this != &token) {
+Tokenizador&
+Tokenizador::operator= (const Tokenizador& token)
+{
+  if (this != &token)
+  {
     (*this).~Tokenizador();
-    copia(token);
+    Copia(token);
   }
 }
 
@@ -42,32 +51,53 @@ Tokenizador& Tokenizador::operator= (const Tokenizador& token) {
  **********************/
 
 // Devuelve los delimitadores
-string Tokenizador::DelimitadoresPalabra() const {
+string
+Tokenizador::DelimitadoresPalabra() const
+{
   return delimiters;
 }
 
 // Devuelve el contenido de casosEspeciales
-bool Tokenizador::CasosEspeciales () const {
+bool
+Tokenizador::CasosEspeciales () const
+{
   return casosEspeciales;
 }
 
 // Devuelve el contenido de pasarAminuscSinAcentos
-bool Tokenizador::PasarAminuscSinAcentos () const {
+bool
+Tokenizador::PasarAminuscSinAcentos () const
+{
   return pasarAminuscSinAcentos;
 }
 
 // Añade nuevos delimitadores a la cadena delimiters
-void Tokenizador::AnyadirDelimitadoresPalabra (const string& nuevoDelimiters) {
-  // TODO : Comprobar que no se almacenan caracteres repetidos
+void
+Tokenizador::AnyadirDelimitadoresPalabra (const string& nuevoDelimiters)
+{
+  // Busca el primer caracter que no esté como delimitador
+  string::size_type pos = nuevoDelimiters.find_first_not_of(delimiters);
+
+  while (pos != string::npos)
+  {
+    // Lo añade a los delimitadores
+    delimiters.push_back(nuevoDelimiters[pos]);
+    // Busca el siguiente
+    pos = nuevoDelimiters.find_first_not_of(delimiters, pos + 1);
+  }
 }
 
 // Cambia el valor de casosEspeciales
-void Tokenizador::CasosEspeciales (const bool& nuevoCasosEspeciales) {
+void
+Tokenizador::CasosEspeciales (const bool& nuevoCasosEspeciales)
+{
   casosEspeciales = nuevoCasosEspeciales;
 }
 
 // Cambia el valor de pasarAminuscSinAcentos
-void Tokenizador::PasarAminuscSinAcentos (const bool& nuevoPasarAminuscSinAcentos) {
+void
+Tokenizador::PasarAminuscSinAcentos (const bool& nuevoPasarAminuscSinAcentos)
+{
   pasarAminuscSinAcentos = nuevoPasarAminuscSinAcentos;
 }
 
@@ -75,15 +105,10 @@ void Tokenizador::PasarAminuscSinAcentos (const bool& nuevoPasarAminuscSinAcento
  ** MÉTODOS Y FUNCIONES **
  *************************/
 
-void Tokenizador::copia (const Tokenizador& token) {
+void
+Tokenizador::Copia (const Tokenizador& token)
+{
   delimiters = token.DelimitadoresPalabra();
   casosEspeciales = token.CasosEspeciales();
   pasarAminuscSinAcentos = token.PasarAminuscSinAcentos();
-}
-
-bool Tokenizador::filtrarDelimitadores (const string& nuevoDelimiters) const {
-  short pos = 0;                            // Variable auxiliar para
-  char c = *nuevoDelimiters.begin();        // Selecciona el primer carácter delimitador
-
-
 }
