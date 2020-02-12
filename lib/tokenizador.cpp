@@ -112,3 +112,98 @@ Tokenizador::Copia (const Tokenizador& token)
   casosEspeciales = token.CasosEspeciales();
   pasarAminuscSinAcentos = token.PasarAminuscSinAcentos();
 }
+
+/*
+ *  TOKENIZAR
+ */
+
+// TODO : Optimizar
+// Tokenizador de PALABRAS
+void
+Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
+{
+  string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+  string::size_type pos = str.find_first_of(delimiters, lastPos + 1);
+
+  tokens.clear();
+  while (lastPos != string::npos || pos != string::npos)
+  {
+    tokens.push_back(str.substr(lastPos, pos - lastPos));
+    lastPos = str.find_first_not_of(delimiters, pos + 1);
+    pos = str.find_first_of(delimiters, lastPos + 1);
+  }
+}
+
+// TODO : Optimizar
+// Tokenizador de FICHEROS
+// Devuelve 'true' si todo ha ido bien, si no mostrará un mensaje de error
+bool
+Tokenizador::Tokenizar (const string &i) const
+{
+  ifstream fLec;    // Fichero lectura
+  string j = i + ".tk";     // Nombre del fichero de escritura
+  ofstream fEsc;    // Fichero escritura
+  string cadena;
+  list<string> tokens;
+
+  // 1) Lectura del fichero a tokenizar
+  fLec.open(i.c_str());
+  if (fLec.is_open())
+  {
+    while (!fLec.eof())
+    {
+      cadena = "";
+      getline(fLec, cadena);
+      if (cadena.length() != 0)
+      {
+        Tokenizar(cadena, tokens);
+      }
+    }
+  }
+  else
+  {
+    cerr << "ERROR: No existe el archivo: " << i << endl;
+
+    return false;
+  }
+  fLec.close();
+  // 2) Escritura de las palabras tokenizadas
+  fEsc.open(j.c_str());
+  list<string>::iterator itS;
+  for (itS = tokens.begin(); itS != tokens.end(); itS++)
+  {
+    fEsc << (*itS) << endl;
+  }
+  fEsc.close();
+
+  return true;
+}
+
+// TODO
+bool
+Tokenizador::TokenizarListaFicheros (const string& i) const
+{
+  
+  return false;
+}
+
+bool
+Tokenizador::TokenizarDirectorio (const string& dirAIndexar) const
+{
+  struct stat dir;
+  // Compruebo la existencia del directorio
+  int err = stat(dirAIndexar.c_str(), &dir);
+
+  if (err == -1 || !S_ISDIR(dir.st_mode))
+  {
+    return false;
+  }
+  else
+  {
+    // Hago una lista en un fichero con find>fich
+    string cmd = "find " + dirAIndexar + " -follow | sort > .lista_fich";
+    system(cmd.c_str());
+
+    return TokenizarListaFicheros(".lista_fich");
+  }
+}

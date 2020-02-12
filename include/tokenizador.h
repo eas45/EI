@@ -4,6 +4,10 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <fstream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <cstdlib>
 
 using namespace std;
 
