@@ -191,8 +191,34 @@ Tokenizador::Tokenizar (const string &i) const
 bool
 Tokenizador::TokenizarListaFicheros (const string& i) const
 {
-  
-  return false;
+  list<string> ficheros;
+  ifstream fLec;
+  string cadena;
+  bool todoOK = true;
+
+  // 1) Se guardan los nombres de los ficheros
+  fLec.open(i.c_str());
+  if (fLec.is_open())
+  {
+    while (!fLec.eof())
+    {
+      cadena = "";
+      getline(fLec, cadena);
+      ficheros.push_back(cadena);
+    }
+  }
+  fLec.close();
+  // 2) Se tokeniza cada fichero de la lista
+  while (ficheros.size() != 0)
+  {
+    if (!Tokenizar(*ficheros.begin()))
+    {
+      todoOK = false;
+    }
+    ficheros.pop_front();
+  }
+
+  return todoOK;
 }
 
 bool
