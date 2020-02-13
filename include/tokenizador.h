@@ -58,7 +58,7 @@ class Tokenizador {
 
   bool Tokenizar (const string&) const;
 
-  bool TokenizarListaFicheros (const string &) const;
+  bool TokenizarListaFicheros (const string&) const;
 
   bool TokenizarDirectorio (const string&) const;
 

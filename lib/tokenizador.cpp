@@ -50,25 +50,12 @@ Tokenizador::operator= (const Tokenizador& token)
  * GETTTERS Y SETTERS *
  **********************/
 
-// Devuelve los delimitadores
-string
-Tokenizador::DelimitadoresPalabra() const
+// delimiters pasa a valer nuevoDelimiters, comprobando que no existan caracteres repetidos
+void
+Tokenizador::DelimitadoresPalabra (const string& nuevoDelimiters)
 {
-  return delimiters;
-}
-
-// Devuelve el contenido de casosEspeciales
-bool
-Tokenizador::CasosEspeciales () const
-{
-  return casosEspeciales;
-}
-
-// Devuelve el contenido de pasarAminuscSinAcentos
-bool
-Tokenizador::PasarAminuscSinAcentos () const
-{
-  return pasarAminuscSinAcentos;
+  delimiters.clear();
+  AnyadirDelimitadoresPalabra(nuevoDelimiters);
 }
 
 // Añade nuevos delimitadores a la cadena delimiters
@@ -87,6 +74,13 @@ Tokenizador::AnyadirDelimitadoresPalabra (const string& nuevoDelimiters)
   }
 }
 
+// Devuelve los delimitadores
+string
+Tokenizador::DelimitadoresPalabra() const
+{
+  return delimiters;
+}
+
 // Cambia el valor de casosEspeciales
 void
 Tokenizador::CasosEspeciales (const bool& nuevoCasosEspeciales)
@@ -94,11 +88,25 @@ Tokenizador::CasosEspeciales (const bool& nuevoCasosEspeciales)
   casosEspeciales = nuevoCasosEspeciales;
 }
 
+// Devuelve el contenido de casosEspeciales
+bool
+Tokenizador::CasosEspeciales () const
+{
+  return casosEspeciales;
+}
+
 // Cambia el valor de pasarAminuscSinAcentos
 void
 Tokenizador::PasarAminuscSinAcentos (const bool& nuevoPasarAminuscSinAcentos)
 {
   pasarAminuscSinAcentos = nuevoPasarAminuscSinAcentos;
+}
+
+// Devuelve el contenido de pasarAminuscSinAcentos
+bool
+Tokenizador::PasarAminuscSinAcentos () const
+{
+  return pasarAminuscSinAcentos;
 }
 
 /*************************
