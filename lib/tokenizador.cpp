@@ -121,6 +121,44 @@ Tokenizador::Copia (const Tokenizador& token)
   pasarAminuscSinAcentos = token.PasarAminuscSinAcentos();
 }
 
+string
+Tokenizador::minuscSinAcentos (const string& str) const
+{
+  string cadena;
+  // Se construye la cadena de nuevo pero sin mayúsculas y sin acentos
+  for (int i = 0; i < str.length(); i++)
+  {
+    switch ((unsigned char)str[i])
+    {
+    case 192: case 193:
+    case 224: case 225:
+      cadena += 'a';
+      break;
+    case 200: case 201:
+    case 232: case 233:
+      cadena += 'e';
+      break;
+    case 204: case 205:
+    case 236: case 237:
+      cadena += 'i';
+      break;
+    case 210: case 211:
+    case 242: case 243:
+      cadena += 'o';
+      break;
+    case 217: case 218:
+    case 249: case 250:
+      cadena += 'u';
+      break;
+    default:
+      cadena += tolower(str[i]);
+      break;
+    }
+  }
+
+  return cadena;
+}
+
 /*
  *  TOKENIZAR
  */
@@ -132,13 +170,29 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
 {
   string::size_type lastPos = str.find_first_not_of(delimiters, 0);
   string::size_type pos = str.find_first_of(delimiters, lastPos + 1);
+  string cadena = str;
 
   tokens.clear();
-  while (lastPos != string::npos || pos != string::npos)
+  // Comprueba primero si hay que tratar la cadena
+  if (pasarAminuscSinAcentos)
   {
-    tokens.push_back(str.substr(lastPos, pos - lastPos));
-    lastPos = str.find_first_not_of(delimiters, pos + 1);
-    pos = str.find_first_of(delimiters, lastPos + 1);
+    cadena = minuscSinAcentos(str);
+  }
+  // Comprueba si en la tokenización se debe tener en cuenta los
+  // casos especiales
+  if (casosEspeciales)
+  {
+    // 1) URL
+    
+  }
+  else
+  {
+    while (lastPos != string::npos || pos != string::npos)
+    {
+      tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+      lastPos = cadena.find_first_not_of(delimiters, pos);
+      pos = cadena.find_first_of(delimiters, lastPos);
+    }
   }
 }
 
@@ -191,10 +245,10 @@ Tokenizador::Tokenizar (const string &i) const
 bool
 Tokenizador::TokenizarListaFicheros (const string& i) const
 {
-  list<string> ficheros;
+  list<string> listaFicheros;    // Nombre de los ficheros a tokenizar
   ifstream fLec;
-  string cadena;
-  bool todoOK = true;
+  string cadena;            // Almacena el nombre del fichero a tokenizar
+  bool todoOK = true;       // Variable auxiliar para saber que todo ha ido bien
 
   // 1) Se guardan los nombres de los ficheros
   fLec.open(i.c_str());
@@ -204,18 +258,18 @@ Tokenizador::TokenizarListaFicheros (const string& i) const
     {
       cadena = "";
       getline(fLec, cadena);
-      ficheros.push_back(cadena);
+      listaFicheros.push_back(cadena);
     }
   }
   fLec.close();
   // 2) Se tokeniza cada fichero de la lista
-  while (ficheros.size() != 0)
+  while (listaFicheros.size() != 0)
   {
-    if (!Tokenizar(*ficheros.begin()))
+    if (!Tokenizar(*listaFicheros.begin()))
     {
       todoOK = false;
     }
-    ficheros.pop_front();
+    listaFicheros.pop_front();
   }
 
   return todoOK;
@@ -240,4 +294,11 @@ Tokenizador::TokenizarDirectorio (const string& dirAIndexar) const
 
     return TokenizarListaFicheros(".lista_fich");
   }
+}
+
+ostream& operator<< (ostream& os, const Tokenizador& token)
+{
+  os << "DELIMITADORES: " << token.delimiters <<
+        "TRATA CASOS ESPECIALES: " << token.casosEspeciales <<
+        " PASAR A MINUSCULAS Y ACENTOS: " << token.pasarAminuscSinAcentos;
 }

@@ -23,6 +23,8 @@ class Tokenizador {
   bool pasarAminuscSinAcentos;      // Pasará a minúsculas y quitará acentos (antes de tokenizar)
 
   void Copia(const Tokenizador&);
+  // Convierte los caracteres de una cadena a minúsculas y sin acentos
+  string minuscSinAcentos(const string&) const;
 
   public:
   Tokenizador (const string&, const bool&, const bool&);
@@ -74,7 +76,7 @@ class Tokenizador {
 
   void PasarAminuscSinAcentos (const bool&);
 
-  bool PasarAminuscSinAcentos () const; 
+  bool PasarAminuscSinAcentos () const;
 };
 // Número de delimitadores posibles
 static const short N_DELIMITERS = 36;
