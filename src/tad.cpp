@@ -72,7 +72,13 @@ main(void)
         cout << str << endl; */
 
         // Prueba URL
-        Tokenizador t2("\".", false, true);
-        t2.Tokenizar("..http:\\www.google.es.coma HTTPs:lol.lol\"skere", lt1);
+        Tokenizador t2("\".,", true, true);
+        t2.Tokenizar("23.01.,jaja6 3.15.69,,.http:\\www.google.es.coma HTTPs:lol.lol\"skere 90.0  lmao  .98 0 .24,89 e,13466.558 ", lt1);
         imprimirListaSTL(lt1);
+
+        string str = "e2";
+        if (isdigit(str[0]))
+        {
+                cout << "es digito" << endl;
+        }
 }

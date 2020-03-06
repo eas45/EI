@@ -160,14 +160,14 @@ Tokenizador::minuscSinAcentos (const string& str) const
 }
 
 void
-Tokenizador::creaDelimitersURL (string& delimitadores) const
+Tokenizador::creaDelimitersCasoEspecial (string& delimitadores, const string& excepcion) const
 {
-  string::size_type pos = delimitadores.find_first_of(URL_DELIMITERS);
+  string::size_type pos = delimitadores.find_first_of(excepcion);
 
   while (pos != string::npos)
   {
     delimitadores.erase(delimitadores.begin() + pos);
-    pos = delimitadores.find_first_of(URL_DELIMITERS);
+    pos = delimitadores.find_first_of(excepcion);
   }
 }
 
@@ -218,15 +218,35 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
             cadena.find("https:", lastPos) == lastPos ||
             cadena.find("ftp:", lastPos) == lastPos)
         { // Es una URL
-        cout << "ES una URL;" << endl;
-          creaDelimitersURL(auxDelimiters);
+        cout << "+Es una URL;" << endl;
+          creaDelimitersCasoEspecial(auxDelimiters, URL_EXCEP);
           pos = cadena.find_first_of(auxDelimiters, pos);
           tokens.push_back(cadena.substr(lastPos, pos - lastPos));
         }
       }
-      else if (isdigit(atoi(cadena.c_str)))
-      {
-
+      else if (isdigit(cadena[lastPos]) && (cadena[lastPos - 1] == ',' || cadena[lastPos - 1] == '.'))
+      { // Es un número decimal que empieza por punto o coma
+      cout << "+Es un DECIMAL mierder" << endl;
+        pos = lastPos -= 1;
+        do
+        {
+          pos = cadena.find_first_of(auxDelimiters, pos + 1);
+          cout << "2Me paro por : " << cadena[pos] << endl;
+        } while (pos != string::npos &&
+                ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1])));
+        tokens.push_back("0" + cadena.substr(lastPos, pos - lastPos));
+        cout << cadena.substr(lastPos, pos - lastPos) << endl;
+      }
+      else if ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1]))
+      { // Es un número decimal que empieza por un número
+      cout << "+Es un DECIMAL normal" << endl;
+        do
+        {
+          pos = cadena.find_first_of(auxDelimiters, pos + 1);
+          cout << "1Me paro por : " << cadena[pos] << endl;
+        } while (pos != string::npos && isdigit(cadena[pos + 1]));
+        tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+        cout << cadena.substr(lastPos, pos - lastPos) << endl;
       }
       else // OTRO CASO
       {
