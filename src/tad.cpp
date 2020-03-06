@@ -55,9 +55,24 @@ main(void)
                 cout << "sí" << endl;
         }
 
-        // AMINUSCSINACENTOS
-        /*Tokenizador t2;
-        string str = "SkàRÁáÀ";
-        t2.minuscSinAcentos(str);
-        cout << str << endl;*/
+        // PRUEBAS CON CADENAS
+        /* string str = "hola";
+        string::size_type pos = str.find_first_of("hl");
+        cout << "posicion : " << pos << endl;
+        while (pos != string::npos)
+        {
+                cout << "cadena : " << str << endl;
+                str.erase(str.begin() + pos);
+                cout << "cadena B : " << str << endl;
+                cout << "PRIMERA LETRA = " << str[0] << endl;
+                pos = str.find_first_of("hl");
+
+                cout << "posicion : " << pos << endl;
+        }
+        cout << str << endl; */
+
+        // Prueba URL
+        Tokenizador t2("\".", false, true);
+        t2.Tokenizar("..http:\\www.google.es.coma HTTPs:lol.lol\"skere", lt1);
+        imprimirListaSTL(lt1);
 }

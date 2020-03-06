@@ -70,7 +70,7 @@ Tokenizador::AnyadirDelimitadoresPalabra (const string& nuevoDelimiters)
     // Lo añade a los delimitadores
     delimiters.push_back(nuevoDelimiters[pos]);
     // Busca el siguiente
-    pos = nuevoDelimiters.find_first_not_of(delimiters, pos + 1);
+    pos = nuevoDelimiters.find_first_not_of(delimiters, pos);
   }
 }
 
@@ -159,17 +159,31 @@ Tokenizador::minuscSinAcentos (const string& str) const
   return cadena;
 }
 
+void
+Tokenizador::creaDelimitersURL (string& delimitadores) const
+{
+  string::size_type pos = delimitadores.find_first_of(URL_DELIMITERS);
+
+  while (pos != string::npos)
+  {
+    delimitadores.erase(delimitadores.begin() + pos);
+    pos = delimitadores.find_first_of(URL_DELIMITERS);
+  }
+}
+
 /*
  *  TOKENIZAR
  */
+
+
 
 // TODO : Optimizar
 // Tokenizador de PALABRAS
 void
 Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
 {
-  string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-  string::size_type pos = str.find_first_of(delimiters, lastPos + 1);
+  string::size_type lastPos;
+  string::size_type pos;
   string cadena = str;
 
   tokens.clear();
@@ -177,16 +191,56 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
   if (pasarAminuscSinAcentos)
   {
     cadena = minuscSinAcentos(str);
+    cout << "CADENA A MINUSCSINACENTOS : " << cadena << endl;
   }
   // Comprueba si en la tokenización se debe tener en cuenta los
   // casos especiales
   if (casosEspeciales)
-  {
-    // 1) URL
-    
+  { // Este bucle debe controlar los casos especiales
+    // Prepara los delimitadores para los casos especiales
+    string delimitadores = delimiters;
+    if (delimitadores.find_first_of(" ") == string::npos)
+    {
+      delimitadores += " ";
+      cout << "DELIMITADORES : " << delimitadores << "-" << endl;
+    }
+
+    lastPos = cadena.find_first_not_of(delimitadores, 0);
+    pos = cadena.find_first_of(delimitadores, lastPos);
+
+    while (lastPos != string::npos || pos != string::npos)
+    {
+      string auxDelimiters = delimitadores;
+      if (cadena[lastPos] == 'h' || cadena[lastPos] == 'f')
+      { // Puede ser una URL
+      cout << "- Puede ser una URL: " << endl;
+        if (cadena.find("http:", lastPos) == lastPos ||
+            cadena.find("https:", lastPos) == lastPos ||
+            cadena.find("ftp:", lastPos) == lastPos)
+        { // Es una URL
+        cout << "ES una URL;" << endl;
+          creaDelimitersURL(auxDelimiters);
+          pos = cadena.find_first_of(auxDelimiters, pos);
+          tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+        }
+      }
+      else if (isdigit(atoi(cadena.c_str)))
+      {
+
+      }
+      else // OTRO CASO
+      {
+        tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+      }
+      lastPos = cadena.find_first_not_of(auxDelimiters, pos);
+      pos = cadena.find_first_of(auxDelimiters, lastPos);
+    }
   }
   else
   {
+    lastPos = cadena.find_first_not_of(delimiters, 0);
+    pos = cadena.find_first_of(delimiters, lastPos);
+
     while (lastPos != string::npos || pos != string::npos)
     {
       tokens.push_back(cadena.substr(lastPos, pos - lastPos));

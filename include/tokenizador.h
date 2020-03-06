@@ -25,6 +25,7 @@ class Tokenizador {
   void Copia(const Tokenizador&);
   // Convierte los caracteres de una cadena a minúsculas y sin acentos
   string minuscSinAcentos(const string&) const;
+  void creaDelimitersURL(string&) const;
 
   public:
   Tokenizador (const string&, const bool&, const bool&);
@@ -80,5 +81,6 @@ class Tokenizador {
 };
 // Número de delimitadores posibles
 static const short N_DELIMITERS = 36;
+static const string URL_DELIMITERS = "_:/.?&-=#@";
 
 #endif

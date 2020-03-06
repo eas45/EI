@@ -5,7 +5,7 @@
 
 using namespace std;
 
-///////// Comprobaciï¿½n de que vacï¿½e la lista resultado
+///////// Comprobaci?n de que vac?e la lista resultado
 
 void imprimirListaSTL(const list<string>& cadena)
 {
@@ -38,7 +38,41 @@ main(void)
         
 
         // TOKENIZADOR SIMPLE
-        Tokenizador t1(".", false, false);
-        t1.Tokenizar("U.S.A", lt1);
+        Tokenizador t1(".", false, true);
+        t1.Tokenizar("U.S.A Ñ ÁÀáàÉÈéèÍÌíìÓÒóòÚÙúù", lt1);
+        imprimirListaSTL(lt1);
+
+        string s = "è¡";
+        unsigned char c = s[0];
+        int i = c;
+        char x = s[1];
+        cout << c << " -> " << i << " -- " << x << endl;
+        cout << (unsigned char)209 << endl;
+        s = "ñ";
+        cout << s << endl;
+        if ((unsigned char)s[0] == 232)
+        {
+                cout << "sí" << endl;
+        }
+
+        // PRUEBAS CON CADENAS
+        /* string str = "hola";
+        string::size_type pos = str.find_first_of("hl");
+        cout << "posicion : " << pos << endl;
+        while (pos != string::npos)
+        {
+                cout << "cadena : " << str << endl;
+                str.erase(str.begin() + pos);
+                cout << "cadena B : " << str << endl;
+                cout << "PRIMERA LETRA = " << str[0] << endl;
+                pos = str.find_first_of("hl");
+
+                cout << "posicion : " << pos << endl;
+        }
+        cout << str << endl; */
+
+        // Prueba URL
+        Tokenizador t2("\".", false, true);
+        t2.Tokenizar("..http:\\www.google.es.coma HTTPs:lol.lol\"skere", lt1);
         imprimirListaSTL(lt1);
 }
