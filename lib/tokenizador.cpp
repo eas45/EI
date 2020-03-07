@@ -206,6 +206,10 @@ Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& 
   {
     return TCasosEspeciales::acronimo;
   }
+  if (cadena[pos] == '-' && isalpha(cadena[pos - 1]) && isalpha(cadena[pos + 1]))
+  {
+    return TCasosEspeciales::multipal;
+  }
   else
   {
     return TCasosEspeciales::ninguno;
@@ -260,6 +264,32 @@ Tokenizador::tokenizarEmail (const string& cadena, string::size_type& lastPos, s
   {
     pos = auxPos;
   }
+
+  return cadena.substr(lastPos, pos - lastPos);
+}
+
+string
+Tokenizador::tokenizarAcronimo (const string& cadena, string::size_type& lastPos, string::size_type& pos, const string& auxDelimiters) const
+{
+  do
+  {
+    pos = cadena.find_first_of(auxDelimiters, pos + 1);
+    cout << "1Me paro por : " << cadena[pos] << endl;
+  } while (pos != string::npos &&
+          ((cadena[pos] == '.') && cadena[pos + 1] != '.'));
+
+  return cadena.substr(lastPos, pos - lastPos);
+}
+
+string
+Tokenizador::tokenizarMultipalabra (const string& cadena, string::size_type& lastPos, string::size_type& pos, const string& auxDelimiters) const
+{
+  do
+  {
+    pos = cadena.find_first_of(auxDelimiters, pos + 1);
+    cout << "1Me paro por : " << cadena[pos] << endl;
+  } while (pos != string::npos &&
+          ((cadena[pos] == '-') && cadena[pos + 1] != '-'));
 
   return cadena.substr(lastPos, pos - lastPos);
 }
@@ -324,6 +354,14 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
       case TCasosEspeciales::email :  cout << "+Es un EMAIL;" << endl;
         creaDelimitersCasoEspecial(auxDelimiters, EMAIL_EXCEPT);
         auxToken = tokenizarEmail(cadena, lastPos, pos, auxDelimiters);
+        tokens.push_back(auxToken);
+        break;
+      case TCasosEspeciales::acronimo :  cout << "+Es un ACRONIMO;" << endl;
+        auxToken = tokenizarAcronimo(cadena, lastPos, pos, auxDelimiters);
+        tokens.push_back(auxToken);
+        break;
+      case TCasosEspeciales::multipal :  cout << "+Es una MULTIPALABRA;" << endl;
+        auxToken = tokenizarMultipalabra(cadena, lastPos, pos, auxDelimiters);
         tokens.push_back(auxToken);
         break;
       default:

@@ -19,7 +19,8 @@ enum TCasosEspeciales
   decSigno,   // Decimal que empieza por ',' o '.'
   decNumero,  // Decimal que empieza por un número
   email,
-  acronimo
+  acronimo,
+  multipal
 };
 
 class Tokenizador {
@@ -41,6 +42,8 @@ class Tokenizador {
   bool esNumero (const string&) const;
   string tokenizarDecimal (const string&, string::size_type&, string::size_type&, const string&) const;
   string tokenizarEmail (const string&, string::size_type&, string::size_type&, const string&) const;
+  string tokenizarAcronimo (const string&, string::size_type&, string::size_type&, const string&) const;
+  string tokenizarMultipalabra (const string&, string::size_type&, string::size_type&, const string&) const;
 
   public:
   Tokenizador (const string&, const bool&, const bool&);

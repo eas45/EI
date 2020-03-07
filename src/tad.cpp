@@ -105,4 +105,12 @@ main(void)
         t2.DelimitadoresPalabra("@.&");
         t2.Tokenizar("hola@email.com tremenda@@wea tremen@da@wea cat@iuii.ua.es@cd", lt1);
         imprimirListaSTL(lt1);
+
+        t2.DelimitadoresPalabra("@.&");
+        t2.Tokenizar("U.S.A p1 e.g p2. La ..N.A.S.A... A..l 100.a0.00", lt1);
+        imprimirListaSTL(lt1);
+
+        t2.DelimitadoresPalabra("-#");
+        t2.Tokenizar("pal1 -MS-DOS p1 p2 -MS-DOS--TRES TU-la---", lt1);
+        imprimirListaSTL(lt1);
 }

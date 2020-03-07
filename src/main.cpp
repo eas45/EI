@@ -1,6 +1,7 @@
 #include <iostream> 
 #include <string>
-#include <list> 
+#include <list>
+#include <sstream>
 #include "tokenizador.h"
 
 using namespace std;
@@ -72,7 +73,44 @@ main(void)
         cout << str << endl; */
 
         // Prueba URL
-        Tokenizador t2("\".", false, true);
-        t2.Tokenizar("..http:\\www.google.es.coma HTTPs:lol.lol\"skere", lt1);
+        Tokenizador t2("\".,", true, true);
+        t2.Tokenizar("hHttp:\\www.google.es.coma HTTPs:lol.lol\"skere", lt1);
+        imprimirListaSTL(lt1);
+
+        string str = "12E+10";
+        if (isdigit(atoi(str.c_str())))
+        {
+                cout << "es digito" << endl;
+        }
+        cout << str.c_str() << endl;
+        cout << atoi(str.c_str()) << endl;
+        cout << isdigit(atoi(str.c_str())) << endl;
+        /* string::size_type p = str.find_first_of('2');
+        if (isalpha(str[p + 1]) || isdigit(str[p + 1]))
+        {
+                cout << "SKRE" << endl;
+        }
+        t2.Tokenizar("", lt1);
+        imprimirListaSTL(lt1); */
+        int k = 90;
+        string n;
+        stringstream aux;
+        aux << k;
+        n = aux.str();
+        cout << n << " -- " << n.size() << endl;
+
+        t2.Tokenizar("10.0a ,,.10.100.00.0 23.01.,jaja6 3.15.69,,. 90.0  lmao  .98$ 0 .24,89% ,13466.558 1,23E+10 ,8e10 ,,.10.100.a.0 25E+9", lt1);
+        imprimirListaSTL(lt1);
+
+        t2.DelimitadoresPalabra("@.&");
+        t2.Tokenizar("hola@email.com tremenda@@wea tremen@da@wea cat@iuii.ua.es@cd", lt1);
+        imprimirListaSTL(lt1);
+
+        t2.DelimitadoresPalabra("@.&");
+        t2.Tokenizar("U.S.A p1 e.g p2. La ..N.A.S.A... A..l 100.a0.00", lt1);
+        imprimirListaSTL(lt1);
+
+        t2.DelimitadoresPalabra("-#");
+        t2.Tokenizar("pal1 -MS-DOS p1 p2 -MS-DOS--TRES TU-la---", lt1);
         imprimirListaSTL(lt1);
 }
