@@ -5,11 +5,22 @@
 #include <list>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cstdlib>
 
 using namespace std;
+
+enum TCasosEspeciales
+{
+  ninguno,
+  url,
+  decSigno,   // Decimal que empieza por ',' o '.'
+  decNumero,  // Decimal que empieza por un número
+  email,
+  acronimo
+};
 
 class Tokenizador {
   friend ostream& operator<<(ostream&, const Tokenizador&);
@@ -26,6 +37,10 @@ class Tokenizador {
   // Convierte los caracteres de una cadena a minúsculas y sin acentos
   string minuscSinAcentos(const string&) const;
   void creaDelimitersCasoEspecial(string&, const string&) const;
+  TCasosEspeciales asignaCasoEspecial (const string&, const string::size_type&, const string::size_type&, const string&) const;
+  bool esNumero (const string&) const;
+  string tokenizarDecimal (const string&, string::size_type&, string::size_type&, const string&) const;
+  string tokenizarEmail (const string&, string::size_type&, string::size_type&, const string&) const;
 
   public:
   Tokenizador (const string&, const bool&, const bool&);
@@ -82,5 +97,7 @@ class Tokenizador {
 // Número de delimitadores posibles
 static const short N_DELIMITERS = 36;
 static const string URL_EXCEP = "_:/.?&-=#@";
+static const string DEC_EXCEP = ",.";
+static const string EMAIL_EXCEPT = ".-_";
 
 #endif

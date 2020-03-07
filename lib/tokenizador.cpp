@@ -176,6 +176,93 @@ Tokenizador::creaDelimitersCasoEspecial (string& delimitadores, const string& ex
  */
 
 
+//////////////////////
+// CASOS ESPECIALES //
+//////////////////////
+
+TCasosEspeciales
+Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& lastPos, const string::size_type& pos, const string& delimitadores) const
+{
+  if (cadena.find("http:") == lastPos || cadena.find("https:") == lastPos || cadena.find("ftp:") == lastPos)
+  {
+    return TCasosEspeciales::url;
+  }
+  string auxDelimiters = delimitadores;
+  creaDelimitersCasoEspecial(auxDelimiters, DEC_EXCEP);
+  if (isdigit(cadena[lastPos]) && (cadena[lastPos - 1] == ',' || cadena[lastPos - 1] == '.'))
+  {
+    return TCasosEspeciales::decSigno;
+  }
+  if ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1]))
+  {
+    return TCasosEspeciales::decNumero;
+  }
+  auxDelimiters = delimitadores;
+  if (cadena[pos] == '@' && isalpha(cadena[pos - 1]) && isalpha(cadena[pos + 1]))
+  {
+    return TCasosEspeciales::email;
+  }
+  if (cadena[pos] == '.' && isalpha(cadena[pos - 1]) && isalpha(cadena[pos + 1]))
+  {
+    return TCasosEspeciales::acronimo;
+  }
+  else
+  {
+    return TCasosEspeciales::ninguno;
+  }
+}
+
+// DECIMALES
+
+bool
+Tokenizador::esNumero (const string& cadena) const
+{
+  for (int i = 0; i < cadena.size() - 1; i++)
+  {
+    if ((cadena[i] == '.' || cadena[i] == ',') &&
+        (cadena[i + 1] == '.' || cadena[i + 1] == ','))
+    {
+      return true;
+    }
+    else if (!isdigit(cadena[i]))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+string
+Tokenizador::tokenizarDecimal (const string& cadena, string::size_type& lastPos, string::size_type& pos, const string& auxDelimiters) const
+{
+  do
+  {
+    pos = cadena.find_first_of(auxDelimiters, pos + 1);
+    cout << "1Me paro por : " << cadena[pos] << endl;
+  } while (pos != string::npos &&
+          ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1])));
+
+  if(cadena[pos - 1] == '%' || cadena[pos - 1] == '$')
+  {
+    pos -= 1;
+  }
+
+  return cadena.substr(lastPos, pos - lastPos);
+}
+
+string
+Tokenizador::tokenizarEmail (const string& cadena, string::size_type& lastPos, string::size_type& pos, const string& auxDelimiters) const
+{
+  string::size_type auxPos = cadena.find_first_of(auxDelimiters, pos + 1);
+  cout << "Me paro por : " << cadena[pos] << endl;
+  if (cadena[auxPos] != '@')
+  {
+    pos = auxPos;
+  }
+
+  return cadena.substr(lastPos, pos - lastPos);
+}
 
 // TODO : Optimizar
 // Tokenizador de PALABRAS
@@ -185,6 +272,7 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
   string::size_type lastPos;
   string::size_type pos;
   string cadena = str;
+  string auxToken;
 
   tokens.clear();
   // Comprueba primero si hay que tratar la cadena
@@ -205,56 +293,48 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
       cout << "DELIMITADORES : " << delimitadores << "-" << endl;
     }
 
+    // Hace la primera tokenización
     lastPos = cadena.find_first_not_of(delimitadores, 0);
     pos = cadena.find_first_of(delimitadores, lastPos);
 
     while (lastPos != string::npos || pos != string::npos)
     {
+      // Asigna un caso especial
+      TCasosEspeciales casoEspecial = asignaCasoEspecial(cadena, lastPos, pos, delimitadores);
+
       string auxDelimiters = delimitadores;
-      if (cadena[lastPos] == 'h' || cadena[lastPos] == 'f')
-      { // Puede ser una URL
-      cout << "- Puede ser una URL: " << endl;
-        if (cadena.find("http:", lastPos) == lastPos ||
-            cadena.find("https:", lastPos) == lastPos ||
-            cadena.find("ftp:", lastPos) == lastPos)
-        { // Es una URL
-        cout << "+Es una URL;" << endl;
-          creaDelimitersCasoEspecial(auxDelimiters, URL_EXCEP);
-          pos = cadena.find_first_of(auxDelimiters, pos);
-          tokens.push_back(cadena.substr(lastPos, pos - lastPos));
-        }
-      }
-      else if (isdigit(cadena[lastPos]) && (cadena[lastPos - 1] == ',' || cadena[lastPos - 1] == '.'))
-      { // Es un número decimal que empieza por punto o coma
-      cout << "+Es un DECIMAL mierder" << endl;
-        pos = lastPos -= 1;
-        do
-        {
-          pos = cadena.find_first_of(auxDelimiters, pos + 1);
-          cout << "2Me paro por : " << cadena[pos] << endl;
-        } while (pos != string::npos &&
-                ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1])));
-        tokens.push_back("0" + cadena.substr(lastPos, pos - lastPos));
-        cout << cadena.substr(lastPos, pos - lastPos) << endl;
-      }
-      else if ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1]))
-      { // Es un número decimal que empieza por un número
-      cout << "+Es un DECIMAL normal" << endl;
-        do
-        {
-          pos = cadena.find_first_of(auxDelimiters, pos + 1);
-          cout << "1Me paro por : " << cadena[pos] << endl;
-        } while (pos != string::npos && isdigit(cadena[pos + 1]));
-        tokens.push_back(cadena.substr(lastPos, pos - lastPos));
-        cout << cadena.substr(lastPos, pos - lastPos) << endl;
-      }
-      else // OTRO CASO
+
+      switch (casoEspecial)
       {
+      case TCasosEspeciales::url : cout << "+Es una URL;" << endl;
+        creaDelimitersCasoEspecial(auxDelimiters, URL_EXCEP);
+        pos = cadena.find_first_of(auxDelimiters, pos);
         tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+        break;
+      case TCasosEspeciales::decSigno : cout << "+Es un DECIMAL mierder;" << endl;
+        pos = lastPos -= 1;
+        auxToken = '0' + tokenizarDecimal(cadena, lastPos, pos, auxDelimiters);
+        tokens.push_back(auxToken);
+        break;
+      case TCasosEspeciales::decNumero : cout << "+Es un DECIMAL normal;" << endl;
+        auxToken = tokenizarDecimal(cadena, lastPos, pos, auxDelimiters);
+        tokens.push_back(auxToken);
+        cout << cadena.substr(lastPos, pos - lastPos) << endl;
+        break;
+      case TCasosEspeciales::email :  cout << "+Es un EMAIL;" << endl;
+        creaDelimitersCasoEspecial(auxDelimiters, EMAIL_EXCEPT);
+        auxToken = tokenizarEmail(cadena, lastPos, pos, auxDelimiters);
+        tokens.push_back(auxToken);
+        break;
+      default:
+        tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+        break;
       }
+      // Tokeniza lo siguiente
       lastPos = cadena.find_first_not_of(auxDelimiters, pos);
       pos = cadena.find_first_of(auxDelimiters, lastPos);
     }
+    
   }
   else
   {
