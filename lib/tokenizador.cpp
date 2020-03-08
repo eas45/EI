@@ -150,6 +150,9 @@ Tokenizador::minuscSinAcentos (const string& str) const
     case 249: case 250:
       cadena += 'u';
       break;
+    case 209:
+      cadena += (unsigned char)241;
+      break;
     default:
       cadena += tolower(str[i]);
       break;
@@ -183,20 +186,20 @@ Tokenizador::creaDelimitersCasoEspecial (string& delimitadores, const string& ex
 TCasosEspeciales
 Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& lastPos, const string::size_type& pos, const string& delimitadores) const
 {
-  if (cadena.find("http:") == lastPos || cadena.find("https:") == lastPos || cadena.find("ftp:") == lastPos)
+  if ((cadena.find("http:", lastPos) == lastPos || cadena.find("https:") == lastPos || cadena.find("ftp:") == lastPos) &&
+    (cadena[pos] == ':' && pos != cadena.size() - 1))
   {
     return TCasosEspeciales::url;
   }
   string::size_type auxPos;
   string auxDelimiters;
-
   // Decimal con primer signo igual a ','
-  if (cadena[lastPos - 1] == ',' && isdigit(cadena[lastPos]))
+  if (!isdigit(cadena[lastPos - 2]) && cadena[lastPos - 1] == ',' && isdigit(cadena[lastPos]))
   { // Puede ser un decimal comenzando en signo
     // Hay que comprobar que no sea ni notación científica
     auxPos = cadena.find_first_of(delimitadores, pos + 1);
     string::size_type posE = cadena.find_first_of("Ee", pos);
-    if (posE != string::npos && posE < auxPos)
+    if (posE != string::npos&& posE < auxPos)
     { // Notación científica
       return TCasosEspeciales::ninguno;
     }
@@ -215,9 +218,8 @@ Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& 
   }
   if (isdigit(cadena[lastPos]) && cadena[pos] == ',' && isdigit(cadena[pos + 1]))
   { // Puede ser un decimal comenzando en número
-    auxPos = cadena.find_first_of(delimitadores, pos + 1);
     string::size_type posE = cadena.find_first_of("Ee", pos);
-    if (posE != string::npos && posE < auxPos)
+    if (posE != string::npos)
     { // Notación científica
       return TCasosEspeciales::ninguno;
     }
@@ -266,7 +268,8 @@ Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& 
     }
   }
   // Email
-  if (isalpha(cadena[pos - 1]) && cadena[pos] == '@' && isalpha(cadena[pos + 1]))
+  if (cadena.find_first_of(delimitadores, pos - 1) != (pos - 1) && cadena[pos] == '@' &&
+      cadena.find_first_of(delimitadores, pos + 1) != (pos + 1))
   { // Puede ser un email o ninguno
     // Hay que comprobar si el formato es correcto (no contiene más '@')
     auxDelimiters = delimitadores;
@@ -291,7 +294,6 @@ Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& 
   {
     return TCasosEspeciales::multipal;
   }
-  
   return TCasosEspeciales::ninguno;
 }
 
@@ -302,7 +304,7 @@ Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& 
 bool
 Tokenizador::esNumero (const string& cadena) const
 {
-  for (int i = 0; i < cadena.size() - 1; i++)
+  for (int i = 0; i < cadena.size(); i++)
   {
     if (isalpha(cadena[i]) ||
         ((cadena[i] == '.' || cadena[i] == ',') &&
@@ -318,15 +320,25 @@ Tokenizador::esNumero (const string& cadena) const
 string
 Tokenizador::tokenizarDecimal (const string& cadena, string::size_type& lastPos, string::size_type& pos, const string& auxDelimiters) const
 {
+  
   do
   {
     pos = cadena.find_first_of(auxDelimiters, pos + 1);
   } while (pos != string::npos &&
           ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1])));
 
-  if(cadena[pos - 1] == '%' || cadena[pos - 1] == '$')
+  string auxCadena = cadena.substr(lastPos, pos - lastPos);
+  if(auxCadena[auxCadena.size() - 1] == '%' || auxCadena[auxCadena.size() - 1] == '$')
   {
-    pos -= 1;
+    if (pos != string::npos)
+    {
+      pos -= 1;
+    }
+    else
+    {
+      pos = cadena.size() - 1;
+    }
+    
   }
 
   return cadena.substr(lastPos, pos - lastPos);
@@ -351,7 +363,7 @@ Tokenizador::tokenizarAcronimo (const string& cadena, string::size_type& lastPos
   {
     pos = cadena.find_first_of(auxDelimiters, pos + 1);
   } while (pos != string::npos &&
-          ((cadena[pos] == '.') && cadena[pos + 1] != '.'));
+          ((cadena[pos] == '.') && cadena.find_first_of(auxDelimiters, pos + 1) != pos + 1));
 
   return cadena.substr(lastPos, pos - lastPos);
 }
@@ -411,39 +423,60 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
       case TCasosEspeciales::url :
         creaDelimitersCasoEspecial(auxDelimiters, URL_EXCEP);
         pos = cadena.find_first_of(auxDelimiters, pos);
-        tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+        auxToken = cadena.substr(lastPos, pos - lastPos);
+        //tokens.push_back(cadena.substr(lastPos, pos - lastPos));
         break;
       case TCasosEspeciales::decSigno :
         pos = lastPos -= 1;
         auxToken = '0' + tokenizarDecimal(cadena, lastPos, pos, auxDelimiters);
-        tokens.push_back(auxToken);
+        //tokens.push_back(auxToken);
         break;
       case TCasosEspeciales::decNumero :
         auxToken = tokenizarDecimal(cadena, lastPos, pos, auxDelimiters);
-        tokens.push_back(auxToken);
+        //tokens.push_back(auxToken);
         break;
       case TCasosEspeciales::email :
         creaDelimitersCasoEspecial(auxDelimiters, EMAIL_EXCEP);
         auxToken = tokenizarEmail(cadena, lastPos, pos, auxDelimiters);
-        tokens.push_back(auxToken);
+        //tokens.push_back(auxToken);
         break;
       case TCasosEspeciales::acronimo :
         auxToken = tokenizarAcronimo(cadena, lastPos, pos, auxDelimiters);
-        tokens.push_back(auxToken);
+        //tokens.push_back(auxToken);
         break;
       case TCasosEspeciales::multipal :
         auxToken = tokenizarMultipalabra(cadena, lastPos, pos, auxDelimiters);
-        tokens.push_back(auxToken);
+        //tokens.push_back(auxToken);
         break;
       default:
-        tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+        auxToken = cadena.substr(lastPos, pos - lastPos);
+       
+        if (isdigit(auxToken[0]) && esNumero(auxToken) &&
+            (auxToken[auxToken.size() - 1] == '%' || auxToken[auxToken.size() - 1] == '$'))
+        {
+           if (isdigit(auxToken[0]) && auxToken.size() > 1 && pos == string::npos)
+          {
+            tokens.push_back(cadena.substr(lastPos, cadena.size() - lastPos - 1));
+            auxToken = auxToken.substr(auxToken.size() - 1, 1);
+          }
+          else
+          {
+            pos--;
+            auxToken = cadena.substr(lastPos, pos - lastPos);
+          }
+        }
+        else
+        {
+          auxToken = cadena.substr(lastPos, pos - lastPos);
+          //tokens.push_back(cadena.substr(lastPos, pos - lastPos));
+        }
         break;
       }
+      tokens.push_back(auxToken);
       // Tokeniza lo siguiente
-      lastPos = cadena.find_first_not_of(auxDelimiters, pos);
-      pos = cadena.find_first_of(auxDelimiters, lastPos);
+      lastPos = cadena.find_first_not_of(delimitadores, pos);
+      pos = cadena.find_first_of(delimitadores, lastPos);
     }
-    
   }
   else
   {
@@ -562,6 +595,6 @@ Tokenizador::TokenizarDirectorio (const string& dirAIndexar) const
 ostream& operator<< (ostream& os, const Tokenizador& token)
 {
   os << "DELIMITADORES: " << token.delimiters <<
-        "TRATA CASOS ESPECIALES: " << token.casosEspeciales <<
-        " PASAR A MINUSCULAS Y ACENTOS: " << token.pasarAminuscSinAcentos;
+        " TRATA CASOS ESPECIALES: " << token.casosEspeciales <<
+        " PASAR A MINUSCULAS Y SIN ACENTOS: " << token.pasarAminuscSinAcentos;
 }
