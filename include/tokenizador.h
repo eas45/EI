@@ -101,6 +101,6 @@ class Tokenizador {
 static const short N_DELIMITERS = 36;
 static const string URL_EXCEP = "_:/.?&-=#@";
 static const string DEC_EXCEP = ",.";
-static const string EMAIL_EXCEPT = ".-_";
+static const string EMAIL_EXCEP = ".-_";
 
 #endif

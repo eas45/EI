@@ -99,11 +99,11 @@ main(void)
         n = aux.str();
         cout << n << " -- " << n.size() << endl;
 
-        t2.Tokenizar("10.0a ,,.10.100.00.0 23.01.,jaja6 3.15.69,,. 90.0  lmao  .98$ 0 .24,89% ,13466.558 1,23E+10 ,8e10 ,,.10.100.a.0 25E+9", lt1);
+        t2.Tokenizar("10. 23.01.,\"\" 20,12.456,7.8.9,\" .34 ,56 10.0a ,,.10.100.00.0 jaja6 3.15.69,,. 90.0  lmao  .98$ 0 ,24,89% ,24,89 ,13466.558 1,23E+10 ,8e10 ,,.10.100.a.0 25E+9", lt1);
         imprimirListaSTL(lt1);
 
         t2.DelimitadoresPalabra("@.&");
-        t2.Tokenizar("hola@email.com tremenda@@wea tremen@da@wea cat@iuii.ua.es@cd", lt1);
+        t2.Tokenizar("hola@email.com tremenda@@wea tremen@da@wea cat@iuii.ua.es@cd cat@@iuii.ua.es", lt1);
         imprimirListaSTL(lt1);
 
         t2.DelimitadoresPalabra("@.&");
@@ -113,4 +113,9 @@ main(void)
         t2.DelimitadoresPalabra("-#");
         t2.Tokenizar("pal1 -MS-DOS p1 p2 -MS-DOS--TRES TU-la---", lt1);
         imprimirListaSTL(lt1);
+
+        string stri = "mm";
+        string::size_type pos = str.find_first_of("n");
+
+        cout << stri[pos] << endl;
 }
