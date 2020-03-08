@@ -183,40 +183,10 @@ Tokenizador::creaDelimitersCasoEspecial (string& delimitadores, const string& ex
 TCasosEspeciales
 Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& lastPos, const string::size_type& pos, const string& delimitadores) const
 {
-  //cout << "VOY A TOKENIZAR: " << cadena.substr(lastPos, pos - lastPos) << endl;
   if (cadena.find("http:") == lastPos || cadena.find("https:") == lastPos || cadena.find("ftp:") == lastPos)
   {
     return TCasosEspeciales::url;
   }
-  /* string auxDelimiters = delimitadores;
-  creaDelimitersCasoEspecial(auxDelimiters, DEC_EXCEP);
-  if (isdigit(cadena[lastPos]) && (cadena[lastPos - 1] == ',' || cadena[lastPos - 1] == '.'))
-  {
-    return TCasosEspeciales::decSigno;
-  }
-  if ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1]))
-  {
-    return TCasosEspeciales::decNumero;
-  }
-  auxDelimiters = delimitadores;
-  if (cadena[pos] == '@' && isalpha(cadena[pos - 1]) && isalpha(cadena[pos + 1]))
-  {
-    return TCasosEspeciales::email;
-  }
-  if (cadena[pos] == '.' && isalpha(cadena[pos - 1]) && isalpha(cadena[pos + 1]))
-  {
-    return TCasosEspeciales::acronimo;
-  }
-  if (cadena[pos] == '-' && isalpha(cadena[pos - 1]) && isalpha(cadena[pos + 1]))
-  {
-    return TCasosEspeciales::multipal;
-  }
-  else
-  {
-    return TCasosEspeciales::ninguno;
-  } */
-  // char previo = cadena[lastPos - 1];
-  // char parada = cadena[pos];
   string::size_type auxPos;
   string auxDelimiters;
 
@@ -316,7 +286,8 @@ Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& 
     return TCasosEspeciales::acronimo;
   }
   // Multipalabra
-  if (cadena[pos] == '-' && isalpha(cadena[pos - 1]) && isalpha(cadena[pos + 1]))
+  if (cadena[pos] == '-' && cadena.find_first_of(delimitadores, pos - 1) != (pos - 1) &&
+      cadena.find_first_of(delimitadores, pos + 1) != (pos + 1))
   {
     return TCasosEspeciales::multipal;
   }
@@ -350,7 +321,6 @@ Tokenizador::tokenizarDecimal (const string& cadena, string::size_type& lastPos,
   do
   {
     pos = cadena.find_first_of(auxDelimiters, pos + 1);
-    cout << "1Me paro por : " << cadena[pos] << endl;
   } while (pos != string::npos &&
           ((cadena[pos] == ',' || cadena[pos] == '.') && isdigit(cadena[pos + 1])));
 
@@ -366,7 +336,6 @@ string
 Tokenizador::tokenizarEmail (const string& cadena, string::size_type& lastPos, string::size_type& pos, const string& auxDelimiters) const
 {
   string::size_type auxPos = cadena.find_first_of(auxDelimiters, pos + 1);
-  cout << "Me paro por : " << cadena[pos] << endl;
   if (cadena[auxPos] != '@')
   {
     pos = auxPos;
@@ -381,7 +350,6 @@ Tokenizador::tokenizarAcronimo (const string& cadena, string::size_type& lastPos
   do
   {
     pos = cadena.find_first_of(auxDelimiters, pos + 1);
-    cout << "1Me paro por : " << cadena[pos] << endl;
   } while (pos != string::npos &&
           ((cadena[pos] == '.') && cadena[pos + 1] != '.'));
 
@@ -394,7 +362,6 @@ Tokenizador::tokenizarMultipalabra (const string& cadena, string::size_type& las
   do
   {
     pos = cadena.find_first_of(auxDelimiters, pos + 1);
-    cout << "1Me paro por : " << cadena[pos] << endl;
   } while (pos != string::npos &&
           ((cadena[pos] == '-') && cadena[pos + 1] != '-'));
 
@@ -416,7 +383,6 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
   if (pasarAminuscSinAcentos)
   {
     cadena = minuscSinAcentos(str);
-    cout << "CADENA A MINUSCSINACENTOS : " << cadena << endl;
   }
   // Comprueba si en la tokenización se debe tener en cuenta los
   // casos especiales
@@ -427,7 +393,6 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
     if (delimitadores.find_first_of(" ") == string::npos)
     {
       delimitadores += " ";
-      cout << "DELIMITADORES : " << delimitadores << "-" << endl;
     }
 
     // Hace la primera tokenización
@@ -443,31 +408,30 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
 
       switch (casoEspecial)
       {
-      case TCasosEspeciales::url : cout << "+Es una URL;" << endl;
+      case TCasosEspeciales::url :
         creaDelimitersCasoEspecial(auxDelimiters, URL_EXCEP);
         pos = cadena.find_first_of(auxDelimiters, pos);
         tokens.push_back(cadena.substr(lastPos, pos - lastPos));
         break;
-      case TCasosEspeciales::decSigno : cout << "+Es un DECIMAL mierder;" << endl;
+      case TCasosEspeciales::decSigno :
         pos = lastPos -= 1;
         auxToken = '0' + tokenizarDecimal(cadena, lastPos, pos, auxDelimiters);
         tokens.push_back(auxToken);
         break;
-      case TCasosEspeciales::decNumero : cout << "+Es un DECIMAL normal;" << endl;
+      case TCasosEspeciales::decNumero :
         auxToken = tokenizarDecimal(cadena, lastPos, pos, auxDelimiters);
         tokens.push_back(auxToken);
-        cout << cadena.substr(lastPos, pos - lastPos) << endl;
         break;
-      case TCasosEspeciales::email :  cout << "+Es un EMAIL;" << endl;
+      case TCasosEspeciales::email :
         creaDelimitersCasoEspecial(auxDelimiters, EMAIL_EXCEP);
         auxToken = tokenizarEmail(cadena, lastPos, pos, auxDelimiters);
         tokens.push_back(auxToken);
         break;
-      case TCasosEspeciales::acronimo :  cout << "+Es un ACRONIMO;" << endl;
+      case TCasosEspeciales::acronimo :
         auxToken = tokenizarAcronimo(cadena, lastPos, pos, auxDelimiters);
         tokens.push_back(auxToken);
         break;
-      case TCasosEspeciales::multipal :  cout << "+Es una MULTIPALABRA;" << endl;
+      case TCasosEspeciales::multipal :
         auxToken = tokenizarMultipalabra(cadena, lastPos, pos, auxDelimiters);
         tokens.push_back(auxToken);
         break;
@@ -475,7 +439,6 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
         tokens.push_back(cadena.substr(lastPos, pos - lastPos));
         break;
       }
-      cout << "HE TOKENIZADO: " << cadena.substr(lastPos, pos - lastPos) << endl;
       // Tokeniza lo siguiente
       lastPos = cadena.find_first_not_of(auxDelimiters, pos);
       pos = cadena.find_first_of(auxDelimiters, lastPos);
