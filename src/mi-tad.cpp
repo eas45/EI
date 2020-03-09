@@ -25,8 +25,8 @@ main(void)
 	list<string> lt1, lt2;
   
   // Prueba URL
-  Tokenizador t2("\".,", true, false);
-  t2.Tokenizar("Http::\\/,www.google.es.coma HTTPs:lol..lol\"skere", lt1);
+  Tokenizador t2("\":.,", true, false);
+  t2.Tokenizar("http: Http::\\/,www.google.es.coma HTTPs:lol..lol\"skere", lt1);
   imprimirListaSTL(lt1);
 
   t2.DelimitadoresPalabra("_:/.?&-=#@;");
@@ -46,7 +46,7 @@ main(void)
 
   // Prueba DECIMALES
   t2.DelimitadoresPalabra("\"@.,&");
-  t2.Tokenizar("10. 23.01.,\"0.2 0,2 12.456,7.8.9,\" .34 ,56 10.0a ,,.10.100.00.0 jaja6 3.15.69,,. 90.0  lmao  .98$ 0 ,24,89% ,24,89 ,13466.558 1,23E+10 ,8e10 ,,.10.100.a.0 25E+9", lt1);
+  t2.Tokenizar(".10 10. 23.01.,\"0.2 0,2 12.456,7.8.9,\" .34 ,56 10.0a ,,.10.100.00.0 jaja6 3.15.69,,. 90.0  lmao  .98$ 0 ,24,89% ,24,89 ,13466.558 1,23E+10 ,8e10 ,,.10.100.a.0 25E+9", lt1);
   imprimirListaSTL(lt1);
 
   // Prueba EMAIL
