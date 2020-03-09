@@ -197,16 +197,18 @@ Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& 
   if (!isdigit(cadena[lastPos - 2]) && cadena[lastPos - 1] == ',' && isdigit(cadena[lastPos]))
   { // Puede ser un decimal comenzando en signo
     // Hay que comprobar que no sea ni notación científica
-    auxPos = cadena.find_first_of(delimitadores, pos + 1);
-    string::size_type posE = cadena.find_first_of("Ee", pos);
-    if (posE != string::npos&& posE < auxPos)
+    //auxPos = cadena.find_first_of(delimitadores, lastPos + 1);
+    string::size_type posE = cadena.find_first_of("Ee", lastPos);
+    if (posE != string::npos&& posE < pos)
     { // Notación científica
       return TCasosEspeciales::ninguno;
     }
     // Hay que comprobar si es acrónimo
     auxDelimiters = delimitadores;
     creaDelimitersCasoEspecial(auxDelimiters, DEC_EXCEP);
-    auxPos = cadena.find_first_of(auxDelimiters, pos);
+    // Busca el siguiente punto de parada a partir del primer delimitador
+    // para poder saber si es un número
+    auxPos = cadena.find_first_of(auxDelimiters, pos + 1);
     if (esNumero(cadena.substr(lastPos, auxPos - lastPos)))
     {
       return TCasosEspeciales::decSigno;
@@ -219,7 +221,7 @@ Tokenizador::asignaCasoEspecial (const string& cadena, const string::size_type& 
   if (isdigit(cadena[lastPos]) && cadena[pos] == ',' && isdigit(cadena[pos + 1]))
   { // Puede ser un decimal comenzando en número
     string::size_type posE = cadena.find_first_of("Ee", pos);
-    if (posE != string::npos)
+    if (posE != string::npos && posE < pos)
     { // Notación científica
       return TCasosEspeciales::ninguno;
     }
@@ -359,11 +361,12 @@ Tokenizador::tokenizarEmail (const string& cadena, string::size_type& lastPos, s
 string
 Tokenizador::tokenizarAcronimo (const string& cadena, string::size_type& lastPos, string::size_type& pos, const string& auxDelimiters) const
 {
-  do
+  while ((pos != string::npos && pos != cadena.size() - 1) &&
+          ((cadena[pos] == '.') && cadena.find_first_of(auxDelimiters, pos + 1) != pos + 1))
   {
     pos = cadena.find_first_of(auxDelimiters, pos + 1);
-  } while (pos != string::npos &&
-          ((cadena[pos] == '.') && cadena.find_first_of(auxDelimiters, pos + 1) != pos + 1));
+  } /* while (pos != string::npos &&
+          ((cadena[pos] == '.') && cadena.find_first_of(auxDelimiters, pos + 1) != pos + 1)); */
 
   return cadena.substr(lastPos, pos - lastPos);
 }
@@ -492,49 +495,89 @@ Tokenizador::Tokenizar (const string& str, list<string>& tokens) const
   }
 }
 
+bool
+Tokenizador::Tokenizar (const string& NomFichEntr, const string& NomFichSal) const
+{
+  ifstream fLec;
+  ofstream fEsc;
+  string cadena;
+  list<string> tokens;
+
+  // Elimna el fichero donde se va a escribir la tokenización, si existe
+  remove(NomFichSal.c_str());
+  fLec.open(NomFichEntr.c_str());
+
+  if(!fLec.is_open()) {
+    cerr << "ERROR: No existe el archivo: -" << NomFichEntr << "-" << endl;
+    return false;
+  }
+  else
+  {
+    while(!fLec.eof())
+    {
+      cadena="";
+      getline(fLec, cadena);
+      if(cadena.length()!=0)
+      {
+        Tokenizar(cadena, tokens);
+          fEsc.open(NomFichSal.c_str(), ios::app);
+          list<string>::iterator itS;
+          for(itS= tokens.begin();itS!= tokens.end();itS++)
+          {
+            fEsc << (*itS) << endl;
+          }
+          fEsc.close();
+      }
+    }
+  }
+  fLec.close();
+  return true;
+} 
+
 // TODO : Optimizar
 // Tokenizador de FICHEROS
 // Devuelve 'true' si todo ha ido bien, si no mostrará un mensaje de error
 bool
 Tokenizador::Tokenizar (const string &i) const
 {
-  ifstream fLec;    // Fichero lectura
-  string j = i + ".tk";     // Nombre del fichero de escritura
-  ofstream fEsc;    // Fichero escritura
-  string cadena;
-  list<string> tokens;
+  // ifstream fLec;    // Fichero lectura
+  // string j = i + ".tk";     // Nombre del fichero de escritura
+  // ofstream fEsc;    // Fichero escritura
+  // string cadena;
+  // list<string> tokens;
 
-  // 1) Lectura del fichero a tokenizar
-  fLec.open(i.c_str());
-  if (fLec.is_open())
-  {
-    while (!fLec.eof())
-    {
-      cadena = "";
-      getline(fLec, cadena);
-      if (cadena.length() != 0)
-      {
-        Tokenizar(cadena, tokens);
-      }
-    }
-  }
-  else
-  {
-    cerr << "ERROR: No existe el archivo: " << i << endl;
+  // // 1) Lectura del fichero a tokenizar
+  // fLec.open(i.c_str());
+  // if (fLec.is_open())
+  // {
+  //   while (!fLec.eof())
+  //   {
+  //     cadena = "";
+  //     getline(fLec, cadena);
+  //     if (cadena.length() != 0)
+  //     {
+  //       Tokenizar(cadena, tokens);
+  //     }
+  //   }
+  // }
+  // else
+  // {
+  //   cerr << "ERROR: No existe el archivo: " << i << endl;
 
-    return false;
-  }
-  fLec.close();
-  // 2) Escritura de las palabras tokenizadas
-  fEsc.open(j.c_str());
-  list<string>::iterator itS;
-  for (itS = tokens.begin(); itS != tokens.end(); itS++)
-  {
-    fEsc << (*itS) << endl;
-  }
-  fEsc.close();
+  //   return false;
+  // }
+  // fLec.close();
+  // // 2) Escritura de las palabras tokenizadas
+  // fEsc.open(j.c_str());
+  // list<string>::iterator itS;
+  // for (itS = tokens.begin(); itS != tokens.end(); itS++)
+  // {
+  //   fEsc << (*itS) << endl;
+  // }
+  // fEsc.close();
 
-  return true;
+  // return true;
+  return Tokenizar(i, i + ".tk");
 }
 
 // TODO
@@ -554,7 +597,10 @@ Tokenizador::TokenizarListaFicheros (const string& i) const
     {
       cadena = "";
       getline(fLec, cadena);
-      listaFicheros.push_back(cadena);
+      if (cadena.size() > 0 && cadena[cadena.size() - 1] != '/')
+      { // Si no es una línea en blanco o una carpeta, se tokenizará
+        listaFicheros.push_back(cadena);
+      }
     }
   }
   fLec.close();
@@ -577,8 +623,7 @@ Tokenizador::TokenizarDirectorio (const string& dirAIndexar) const
   struct stat dir;
   // Compruebo la existencia del directorio
   int err = stat(dirAIndexar.c_str(), &dir);
-
-  if (err == -1 || !S_ISDIR(dir.st_mode))
+  if (err == -1 || !S_ISDIR(dir.st_mode) || dirAIndexar.size() == 0)
   {
     return false;
   }

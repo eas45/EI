@@ -45,8 +45,8 @@ main(void)
   imprimirListaSTL(lt1);
 
   // Prueba DECIMALES
-  t2.DelimitadoresPalabra("@.,&");
-  t2.Tokenizar("10. 23.01.,\"\" 20,12.456,7.8.9,\" .34 ,56 10.0a ,,.10.100.00.0 jaja6 3.15.69,,. 90.0  lmao  .98$ 0 ,24,89% ,24,89 ,13466.558 1,23E+10 ,8e10 ,,.10.100.a.0 25E+9", lt1);
+  t2.DelimitadoresPalabra("\"@.,&");
+  t2.Tokenizar("10. 23.01.,\"0.2 0,2 12.456,7.8.9,\" .34 ,56 10.0a ,,.10.100.00.0 jaja6 3.15.69,,. 90.0  lmao  .98$ 0 ,24,89% ,24,89 ,13466.558 1,23E+10 ,8e10 ,,.10.100.a.0 25E+9", lt1);
   imprimirListaSTL(lt1);
 
   // Prueba EMAIL
@@ -64,6 +64,7 @@ main(void)
   t2.Tokenizar("pal1 -MS-DOS p1 p2 -MS-DOS--TRES TU-la---", lt1);
   imprimirListaSTL(lt1);
 
+  // CORRECCIÓN DE BUGS
   Tokenizador a("@.,&", true, false); 
   list<string> tokens;
 
@@ -78,5 +79,16 @@ main(void)
   a.Tokenizar("...10.000.a.000 ,,23.05 10/12/85 1,23E+10", lt1);
   imprimirListaSTL(lt1);
   a.Tokenizar("23$ 23.0% 23 23$ 23.0%", lt1);
+  imprimirListaSTL(lt1);
+
+  // Ejecución seria
+  // cout << " -- EJECUCIÓN DE TOKENIZACIÓN DE FICHEROS -- " << endl;
+  // Tokenizador tok("\t ,;:.-+/*_`'{}[]()!?&#\"\\<>", true, true);
+  // tok.Tokenizar("aas-100-mg-comprimidos-20-comprimidos.txt", "aas-100-mg-comprimidos-20-comprimidos.txt.tk");
+  // tok.Tokenizar("prueba.txt");
+
+
+  a.DelimitadoresPalabra("\t ,;:.-+/*_`'{}[]()!?&#\"\\<>");
+  a.Tokenizar("SANDOSTATIN 0,5 mg/ml solución inyectable; 5 ampollas.", lt1);
   imprimirListaSTL(lt1);
 }
