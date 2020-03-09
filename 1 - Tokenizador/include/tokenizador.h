@@ -38,6 +38,7 @@ class Tokenizador {
   // Convierte los caracteres de una cadena a minúsculas y sin acentos
   string minuscSinAcentos(const string&) const;
   void creaDelimitersCasoEspecial(string&, const string&) const;
+  bool esURL (const string&, const string::size_type&, const string::size_type&, const string&) const;
   TCasosEspeciales asignaCasoEspecial (const string&, const string::size_type&, const string::size_type&, const string&) const;
   bool esNumero (const string&) const;
   string tokenizarDecimal (const string&, string::size_type&, string::size_type&, const string&) const;

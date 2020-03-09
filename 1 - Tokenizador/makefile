@@ -10,8 +10,8 @@ OBJ = $(patsubst %,$(LIBDIR)/%,$(_OBJ))
 
 all: practica1
 
-practica1:	src/main-t.cpp $(OBJ)
-	$(CC) $(OPTIONS) $(DEBUG) -I$(INCLUDEDIR) src/main-t.cpp $(OBJ) -o practica1
+practica1:	src/tad.cpp $(OBJ)
+	$(CC) $(OPTIONS) $(DEBUG) -I$(INCLUDEDIR) src/tad.cpp $(OBJ) -o practica1
 
 $(LIBDIR)/%.o : $(LIBDIR)/%.cpp $(INCLUDEDIR)/%.h 
 	$(CC) $(OPTIONS) $(DEBUG) -c -I$(INCLUDEDIR) -o $@ $<
