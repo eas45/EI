@@ -2,6 +2,9 @@
 #define _INDEXADOR_INFORMACION_
 
 #include <iostream>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 using namespace std;
 
@@ -51,6 +54,108 @@ class InfTermDoc
     list<int> posTerm;
 };
 
-// Clase InfDoc
+class InfDoc
+{
+  friend ostream& operator<< (ostream&, const InfDoc&);
+  // -- Implementado en el enunciado (p. 4)
+
+  public:
+    InfDoc (const InfDoc&);
+    InfDoc ();
+    ~InfDoc ();
+    InfDoc& operator= (const InfDoc&);
+
+  private:
+    /* Identificador del documento. El primer documento indexado en la
+        colección será el identificador 1
+    */
+    long int idDoc;
+    // Nº total de palabras del documento
+    int numPal;
+    // Nº total de palabras sin stop-words del documento
+    int numPalSinParada;
+    /* Nº total de palabras diferentes que no sean stop-words (sin acumular
+        la frecuencia de cada una de ellas)
+    */
+    int numPalDiferentes;
+    // Tamaño en bytes del documento
+    int tamBytes;
+    /* Atributo correspondiente a la fecha y hora de modificación del
+        documento. El tipo "Fecha/hora" lo eligirá/implementará el alumno
+    */
+    //Fecha fechaModificacion;
+};
+
+class InfColeccionDocs
+{
+  friend ostream& operator<< (ostream&, InfColeccionDocs&);
+  // -- Implementado en el enunciado (p. 5)
+
+  public:
+    InfColeccionDocs (const InfColeccionDocs&);
+    InfColeccionDocs ();
+    ~InfColeccionDocs ();
+    InfColeccionDocs& operator= (const InfColeccionDocs&);
+
+  private:
+    // Nº total de documentos en la colección
+    long int numDocs;
+    // Nº total de palabras en la colección
+    long int  numTotalPal;
+    // Nº total de palabras sin stop-words en la colección
+    long int numTotalPalSinParada;
+    /* Nº total de palabras diferentes en la colección que no sean
+        stop-words (sin acumular la frecuencia de cada una de ellas)
+    */
+    long int numTotalPalDiferentes;
+    // Tamaño total en bytes de la colección
+    long int tamBytes;
+};
+
+class InformacionTerminoPregunta
+{
+  friend ostream& operator<< (ostream&, const InformacionTerminoPregunta&);
+  // -- Implementado en el enunciado (p. 5)
+
+  public:
+    InformacionTerminoPregunta (const InformacionTerminoPregunta&);
+    InformacionTerminoPregunta ();
+    ~InformacionTerminoPregunta ();
+    InformacionTerminoPregunta & operator= (const InformacionTerminoPregunta&);
+
+  private:
+    // Frecuencia total del término en la pregunta
+    int ft;
+    /* Solo se almacenará esta información si el campo privado del indexador
+        almacenarPostTerm == true
+      Lista de números de palabra en los que aparece el término en la
+        pregunta. Los números de palabra comenzarán desde cero (la primera
+        palabra de la pregunta). Se numerarán las palabras de parada. Estará
+        ordenada de menor a mayor posición.
+    */
+    list<int> posTerm;
+};
+
+class InformacionPregunta
+{
+  friend ostream& operator<< (ostream&, const InformacionPregunta&);
+  // -- Implementado en el enunciado (p. 6)
+
+  public:
+    InformacionPregunta (const InformacionPregunta&);
+    InformacionPregunta ();
+    ~InformacionPregunta ();
+    InformacionPregunta& operator= (const InformacionPregunta&);
+
+  private:
+    // Nº total de palabras en la pregunta
+    long int numTotalPal;
+    // Nº total de palabras sin stop-words en la pregunta
+    long int numTotalPalSinParada;
+    /* Nº total de palabras diferentes en la pregunta que no sean stop-words
+        (sin acumular la frecuencia de cada una de ellas)
+    */
+   long int numTotalPalDiferentes;
+};
 
 #endif
