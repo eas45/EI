@@ -72,7 +72,8 @@ class IndexadorHash
     bool Inserta (const string&, const InformacionTermino&);
     int NumPalIndexadas () const;
     string DevolverFichPalParada () const;
-    int NumPalIndexadas () const;
+    void ListarPalParada () const;
+    int NumPalParada () const;
     string  DevolverDelimitadores () const;
     bool DevolverCasosEspeciales () const;
     bool DevolverPasarAminuscSinAcentos () const;
@@ -82,7 +83,6 @@ class IndexadorHash
     bool DevolverAlmEnDisco () const;
     void ListarInfColeccDocs () const;
     void ListarTerminos () const;
-    bool ListarTerminos (const string&) const;
     bool ListarTerminos (const string&) const;
     void ListarDocs () const;
     bool ListarDocs (const string&) const;
@@ -115,6 +115,9 @@ class IndexadorHash
     int tipoStemmer;
     bool almacenarEnDisco;
     bool almacenarPosTerm;
+
+    // MÉTODOS Y FUNCIONES
+    bool almacenarStopWords ();
 };
 
 #endif

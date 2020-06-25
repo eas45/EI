@@ -20,6 +20,8 @@ class InformacionTermino
     InformacionTermino ();    // Inicializa ftc = 0
     ~InformacionTermino ();   // Pone ftc = 0 y vacia l_docs
     InformacionTermino& operator= (const InformacionTermino&);
+    // MÉTODOS Y FUNCIONES
+    string ToString () const;
 
   private:
     // Frecuencia total del término en la colección
@@ -41,6 +43,8 @@ class InfTermDoc
     InfTermDoc ();    // Inicializa ft = 0;
     ~InfTermDoc ();   // Pone ft = 0;
     InfTermDoc& operator= (const InfTermDoc&);
+    // MÉTODOS Y FUNCIONES
+    string ToString () const;
 
   private:
     // Frecuencia del término en el documento
@@ -65,6 +69,8 @@ class InfDoc
     InfDoc ();
     ~InfDoc ();
     InfDoc& operator= (const InfDoc&);
+    // MÉTODOS Y FUNCIONES
+    string ToString () const;
 
   private:
     /* Identificador del documento. El primer documento indexado en la
@@ -123,6 +129,8 @@ class InformacionTerminoPregunta
     InformacionTerminoPregunta ();
     ~InformacionTerminoPregunta ();
     InformacionTerminoPregunta& operator= (const InformacionTerminoPregunta&);
+    // MÉTODOS Y FUNCIONES
+    string ToString () const;
 
   private:
     // Frecuencia total del término en la pregunta

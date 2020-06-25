@@ -51,6 +51,22 @@ ostream& operator<< (ostream& s, const InformacionTermino& p) {
   // s << "\tId.Doc: " << idDoc << "\t" << InfTermDoc;
 }
 
+// Lista la información del objeto
+string
+InformacionTermino::ToString () const
+{
+  string salida;
+  unsigned x = 0;
+  salida = "Frecuencia total: " + to_string(ftc) + "\t" + to_string(l_docs.size());
+  // A continuación se mostrarán todos los elementos de "l_docs"
+  for (auto pos = l_docs.begin(); pos != l_docs.end(); pos++)
+  { // Se coloca en cada una de las posiciones de la tabla hash
+    salida += "\tId.Doc: " + to_string(pos->first) + "\t" + pos->second.ToString();
+  }
+
+  return salida;
+}
+
 /****************
  *  InfTermDoc  *
  ****************/
@@ -106,6 +122,21 @@ ostream& operator<< (ostream& s, const InfTermDoc& p)
     s << "\t" << posicion;
   */
  return s;
+}
+
+string
+InfTermDoc::ToString () const
+{
+  string salida;
+
+  salida = "ft: " + to_string(ft);
+  // A continuación se mostrarán todos los elementos de posTerm
+  for (list<int>::const_iterator elem = posTerm.begin(); elem != posTerm.end(); elem++)
+  {
+    salida += "\t" + to_string(*elem);
+  }
+
+  return salida;
 }
 
 /************
@@ -165,6 +196,21 @@ InfDoc::operator= (const InfDoc& infoDocumento)
   }
 
   return *this;
+}
+
+// Operador salida
+// TODO
+
+string
+InfDoc::ToString () const
+{
+  string salida;
+
+  salida = "idDoc: " + to_string(idDoc) + "\tnumPal: " + to_string(numPal) +
+    "\tnumPalSinParada: " + to_string(numPalSinParada) + "\tnumPalDiferentes: " +
+    to_string(numPalDiferentes) + "\ttamBytes: " + to_string(tamBytes);
+
+  return salida;
 }
 
 /**********************
@@ -272,6 +318,26 @@ InformacionTerminoPregunta::operator= (const InformacionTerminoPregunta& infoTer
 
 // Operador salida
 // TODO
+ostream& operator<< (ostream& s, const InformacionTerminoPregunta& p)
+{
+  s << p.ToString();
+}
+
+// Lista la información del objeto
+string
+InformacionTerminoPregunta::ToString () const
+{
+  string salida = "";
+
+  salida += "ft: " + ft;
+  // A continuación se mostrarán todos los elementos de "posTerm"
+  for (list<int>::const_iterator pos = posTerm.begin(); pos != posTerm.end(); pos++)
+  {
+    salida += "\t" + *pos;
+  }
+
+  return salida;
+}
 
 /************************
  *  InformacionPregunta *
