@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <list>
 
 using namespace std;
 
@@ -83,7 +84,7 @@ class InfDoc
     /* Atributo correspondiente a la fecha y hora de modificación del
         documento. El tipo "Fecha/hora" lo eligirá/implementará el alumno
     */
-    //Fecha fechaModificacion;
+    Fecha fechaModificacion;
 };
 
 class InfColeccionDocs
@@ -121,7 +122,7 @@ class InformacionTerminoPregunta
     InformacionTerminoPregunta (const InformacionTerminoPregunta&);
     InformacionTerminoPregunta ();
     ~InformacionTerminoPregunta ();
-    InformacionTerminoPregunta & operator= (const InformacionTerminoPregunta&);
+    InformacionTerminoPregunta& operator= (const InformacionTerminoPregunta&);
 
   private:
     // Frecuencia total del término en la pregunta
@@ -156,6 +157,11 @@ class InformacionPregunta
         (sin acumular la frecuencia de cada una de ellas)
     */
    long int numTotalPalDiferentes;
+};
+
+class Fecha
+{
+
 };
 
 #endif

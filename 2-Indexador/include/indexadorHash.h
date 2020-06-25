@@ -4,9 +4,9 @@
 // #include <iostream>
 // #include <unordered_map>
 // #include <unordered_set>
-// #include "stemmer.h"
 #include "indexadorInformacion.h"
 #include "tokenizador.h"
+#include "stemmer.h"
 
 class IndexadorHash
 {
@@ -114,7 +114,7 @@ class IndexadorHash
     string directorioIndice;
     int tipoStemmer;
     bool almacenarEnDisco;
-    bool alamacenarPosTerm;
+    bool almacenarPosTerm;
 };
 
 #endif
