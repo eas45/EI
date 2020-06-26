@@ -7,6 +7,7 @@
 #include "indexadorInformacion.h"
 #include "tokenizador.h"
 #include "stemmer.h"
+#include <utility>
 
 class IndexadorHash
 {
@@ -118,6 +119,8 @@ class IndexadorHash
 
     // MÉTODOS Y FUNCIONES
     bool almacenarStopWords ();
+    void stemming(string&) const;
+    string aplicarTratamiento (const string&) const;
 };
 
 #endif

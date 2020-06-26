@@ -679,3 +679,10 @@ ostream& operator<< (ostream& os, const Tokenizador& token)
         " TRATA CASOS ESPECIALES: " << token.casosEspeciales <<
         " PASAR A MINUSCULAS Y SIN ACENTOS: " << token.pasarAminuscSinAcentos;
 }
+
+// PRÁCTICA INDEXADOR
+string
+Tokenizador::UsarMinuscSinAcentos (const string& palabra) const
+{
+  return minuscSinAcentos(palabra);
+}

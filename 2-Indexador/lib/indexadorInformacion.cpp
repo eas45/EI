@@ -67,6 +67,12 @@ InformacionTermino::ToString () const
   return salida;
 }
 
+InfTermDoc
+InformacionTermino::getInfTermDoc (const long int& idDoc) const
+{
+  return l_docs.at(idDoc);
+}
+
 /****************
  *  InfTermDoc  *
  ****************/
@@ -211,6 +217,12 @@ InfDoc::ToString () const
     to_string(numPalDiferentes) + "\ttamBytes: " + to_string(tamBytes);
 
   return salida;
+}
+
+long int
+InfDoc::getIdDoc () const
+{
+  return idDoc;
 }
 
 /**********************
@@ -388,3 +400,14 @@ InformacionPregunta::operator= (const InformacionPregunta& infoPregunta)
 
 // Operador salida
 // TODO
+
+string
+InformacionPregunta::ToString () const
+{
+  string salida;
+
+  salida = "numTotalPal: " + to_string(numTotalPal) + "\tnumTotalPalSinParada: " +
+    to_string(numTotalPalSinParada) + "\tnumTotalPalDiferentes: " + to_string(numTotalPalDiferentes);
+
+  return salida;
+}

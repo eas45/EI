@@ -139,6 +139,29 @@ IndexadorHash::almacenarStopWords ()
   return false;
 }
 
+// Aplica stemming a una palabra
+void
+IndexadorHash::stemming(string& palabra) const
+{
+  stemmerPorter stemmer;
+  stemmer.stemmer(palabra, tipoStemmer);
+}
+
+// Aplica el tratamiendo te mayúsculas y stemming a una palabra
+string
+IndexadorHash::aplicarTratamiento (const string& palabra) const
+{
+  string aux = palabra;
+
+  if (DevolverPasarAminuscSinAcentos())
+  {
+    aux = tok.UsarMinuscSinAcentos(palabra);
+  }
+  stemming(aux);
+
+  return aux;
+}
+
 // Lista el contenido del campo "indice" y del campo "indiceDocs"
 void
 IndexadorHash::ImprimirIndexacion () const
@@ -157,4 +180,120 @@ IndexadorHash::ImprimirIndexacion () const
   {
     salida += doc->first + "\t" + doc->second.ToString() + "\n";
   }
+
+  cout << salida;
+}
+
+bool
+IndexadorHash::IndexarPregunta (const string& preg)
+{
+  return true;
+}
+
+bool
+IndexadorHash::DevuelvePregunta (string& preg) const
+{
+  return true;
+}
+
+bool
+IndexadorHash::DevuelvePregunta (InformacionPregunta& inf) const
+{
+  return true;
+}
+
+void
+IndexadorHash::ImprimirIndexacionPregunta ()
+{
+  string salida;
+
+  salida = "Pregunta indexada: " + pregunta + "\nTerminos indexados en la pregunta: \n";
+  // Se lista el contenido de "indicePregunta"
+  for (auto pos = indicePregunta.begin(); pos != indicePregunta.end(); pos++)
+  {
+    salida += pos->first + "\t" + pos->second.ToString() + "\n";
+  }
+  salida += infPregunta.ToString();
+
+  cout << salida;
+}
+
+void
+IndexadorHash::ImprimirPregunta ()
+{
+  string salida;
+
+  salida = "Pregunta indexada: " + pregunta +
+    "\nInformacion de la pregunta: " + infPregunta.ToString();
+
+  cout << salida;
+}
+
+// Devuelve TRUE si word ha sido indexado y devuelve la información en inf
+bool
+IndexadorHash::Devuelve (const string& word, InformacionTermino& inf) const
+{
+  string palabra;
+
+  if (Existe(word))
+  {
+    palabra = aplicarTratamiento(word);
+    inf = indice.at(palabra);
+    return true;
+  }
+  // Si no encuentra el término, devuelve inf vacío
+  inf.~InformacionTermino();
+
+  return false;
+}
+
+/* Devuelve TRUE si word ha sido indexado y aparece en el documento de nombre nomDoc.
+    Devuelve la información almacenada para word en el documento
+*/
+bool
+IndexadorHash::Devuelve (const string& word, const string& nomDoc, InfTermDoc& infDoc) const
+{
+  unordered_map<string, InfDoc>::const_iterator documento = indiceDocs.find(nomDoc);
+
+  if (Existe(word) && documento != indiceDocs.cend())
+  { // Si existe la palabra indexada y el documento
+    // Se trata el termino
+    string termino = aplicarTratamiento(word);
+    unordered_map<string, InformacionTermino>::const_iterator infoTermino = indice.find(termino);
+    // Se recupera la información del término en el documento
+    infDoc = infoTermino->second.getInfTermDoc(documento->second.getIdDoc());
+    return true;
+  }
+
+  // Si no devuelve infDoc vacío
+  infDoc.~InfTermDoc();
+  return false;
+}
+
+bool
+IndexadorHash::Existe (const string& word) const
+{
+  string palabra = word;
+
+  aplicarTratamiento(palabra);
+
+  return indice.find(palabra) != indice.end();
+}
+
+/* Se insertará la palabra (habiendo aplicado stemming y mayúsculas) si no
+    estaba previamente indexada
+*/
+bool
+IndexadorHash::Inserta (const string& word, const InformacionTermino& inf)
+{
+  if (Existe(word))
+  { // Si el término no ha sido indexado
+    string termino = aplicarTratamiento(word);
+    // Se inserta
+    pair<string, InformacionTermino> nuevoTermino(termino, inf);
+    indice.insert(nuevoTermino);
+    return true;
+  }
+
+  return false;
 }

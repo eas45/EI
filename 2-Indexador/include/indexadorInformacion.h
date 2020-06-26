@@ -9,6 +9,8 @@
 
 using namespace std;
 
+class InfTermDoc;
+
 // Clase en la que se implementará la generación de información para la indexación
 class InformacionTermino
 {
@@ -22,6 +24,7 @@ class InformacionTermino
     InformacionTermino& operator= (const InformacionTermino&);
     // MÉTODOS Y FUNCIONES
     string ToString () const;
+    InfTermDoc getInfTermDoc (const long int&) const;
 
   private:
     // Frecuencia total del término en la colección
@@ -71,6 +74,7 @@ class InfDoc
     InfDoc& operator= (const InfDoc&);
     // MÉTODOS Y FUNCIONES
     string ToString () const;
+    long int getIdDoc () const;
 
   private:
     /* Identificador del documento. El primer documento indexado en la
@@ -155,6 +159,7 @@ class InformacionPregunta
     InformacionPregunta ();
     ~InformacionPregunta ();
     InformacionPregunta& operator= (const InformacionPregunta&);
+    string ToString() const;
 
   private:
     // Nº total de palabras en la pregunta

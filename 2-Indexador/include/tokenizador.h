@@ -97,6 +97,9 @@ class Tokenizador {
   void PasarAminuscSinAcentos (const bool&);
 
   bool PasarAminuscSinAcentos () const;
+
+  // MÉTODOS Y FUNCIONES
+  string UsarMinuscSinAcentos(const string&) const;
 };
 // Número de delimitadores posibles
 static const short N_DELIMITERS = 36;
