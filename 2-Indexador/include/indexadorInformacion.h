@@ -25,6 +25,9 @@ class InformacionTermino
     // MÉTODOS Y FUNCIONES
     string ToString () const;
     InfTermDoc getInfTermDoc (const long int&) const;
+    bool perteneceAdoc(const long int&) const;
+    // Busca el idDoc en "l_docs" y lo borra si aparece
+    void eliminarDoc (const long int&);
 
   private:
     // Frecuencia total del término en la colección
@@ -107,6 +110,8 @@ class InfColeccionDocs
     InfColeccionDocs ();
     ~InfColeccionDocs ();
     InfColeccionDocs& operator= (const InfColeccionDocs&);
+    // MÉTODOS Y FUNCIONES
+    string ToString () const;
 
   private:
     // Nº total de documentos en la colección

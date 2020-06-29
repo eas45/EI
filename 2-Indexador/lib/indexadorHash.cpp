@@ -280,6 +280,76 @@ IndexadorHash::Existe (const string& word) const
   return indice.find(palabra) != indice.end();
 }
 
+bool
+IndexadorHash::Borra (const string& word)
+{
+  if (Existe(word))
+  {
+    string palabra = aplicarTratamiento(word);
+    indice.erase(palabra);
+    return true;
+  }
+
+  return false;
+}
+
+bool
+IndexadorHash::BorraDoc (const string& nomDoc)
+{
+  // Se recupera el puntero del nombre del documento
+  unordered_map<string, InfDoc>::const_iterator doc = indiceDocs.find(nomDoc);
+
+  if (doc != indiceDocs.cend())
+  { // Si lo ha encontrado
+    // Se borran todos los términos del documento
+    long int id = doc->second.getIdDoc();
+    // Se busca en todos los términos indexados
+    unordered_map<long int, InfTermDoc>::const_iterator posIndice;
+    for (unordered_map<string, InformacionTermino>::iterator pos = indice.begin(); 
+      pos != indice.end(); pos++)
+    { // Para cada elemento del índice
+      // Intenta eliminar el término indexado del documento de igual id
+      pos->second.eliminarDoc(id);
+    }
+    // Después se elimina de la colección de documentos
+    // TODO
+
+    return true;
+  }
+
+  return false;
+}
+
+// Borra todos los términos del índice de documentos
+void
+IndexadorHash::VaciarIndiceDocs ()
+{
+  indiceDocs.clear();
+}
+
+// Borra todos los términos del índice de la pregunta
+void
+IndexadorHash::VaciarIndicePreg ()
+{
+  indicePregunta.clear();
+}
+
+// Sustituye la información almacenada en el índice por la de "inf"
+bool
+IndexadorHash::Actualiza (const string& word, const InformacionTermino& inf)
+{
+  if (Existe(word))
+  { // Si existe
+    // Actualiza la información del término indexado
+    string termino = aplicarTratamiento(word);
+    indice.at(termino) = inf;
+
+    return true;
+  }
+
+  return false;
+}
+
 /* Se insertará la palabra (habiendo aplicado stemming y mayúsculas) si no
     estaba previamente indexada
 */
@@ -292,6 +362,176 @@ IndexadorHash::Inserta (const string& word, const InformacionTermino& inf)
     // Se inserta
     pair<string, InformacionTermino> nuevoTermino(termino, inf);
     indice.insert(nuevoTermino);
+    return true;
+  }
+
+  return false;
+}
+
+// Devuelve el número de términos diferentes indexados
+int
+IndexadorHash::NumPalIndexadas () const
+{
+  return indice.size();
+}
+
+// Devuelve el contenido del campo "ficheroStopWords"
+string
+IndexadorHash::DevolverFichPalParada () const
+{
+  return ficheroStopWords;
+}
+
+// Muestra por pantalla las palabras de parada almacenadas
+void
+IndexadorHash::ListarPalParada () const
+{
+  string salida;
+
+  for (const string& palParada : stopWords)
+  {
+    salida += palParada + "\n";
+  }
+
+  cout << salida;
+}
+
+// Devuelve el número de palabras de parada almacenadas
+int
+IndexadorHash::NumPalParada () const
+{
+  return stopWords.size();
+}
+
+// Devuelve los delimitadores utilizados por el tokenizador
+string
+IndexadorHash::DevolverDelimitadores () const
+{
+  return tok.DelimitadoresPalabra();
+}
+
+// Devuelve si el tokenizador analiza los casos especiales
+bool
+IndexadorHash::DevolverCasosEspeciales () const
+{
+  return tok.CasosEspeciales();
+}
+
+// Devuelve si el tokenizador pasa a minúsculas sin acentos
+bool
+IndexadorHash::DevolverPasarAminuscSinAcentos () const
+{
+  tok.PasarAminuscSinAcentos();
+}
+
+// Devuelve el valor de almacenarPosTerm
+bool
+IndexadorHash::DevolverAlmacenarPosTerm () const
+{
+  return almacenarPosTerm;
+}
+
+// Devulve "directorioIndice"
+string
+IndexadorHash::DevolverDirIndice () const
+{
+  return directorioIndice;
+}
+
+// Devuelve el valor de "tipoStemmer"
+int
+IndexadorHash::DevolverTipoStemming () const
+{
+  return tipoStemmer;
+}
+
+// Devuekve el valor indicado en "almEnDisco"
+bool
+IndexadorHash::DevolverAlmEnDisco () const
+{
+  return almacenarEnDisco;
+}
+
+// Muestra por pantalla la información de la colección de documentos
+void
+IndexadorHash::ListarInfColeccDocs () const
+{
+  cout << informacionColeccionDocs.ToString() << endl;
+}
+
+// Muestra el contenido de "indice"
+void
+IndexadorHash::ListarTerminos () const
+{
+  string salida = "";
+
+  for (unordered_map<string, InformacionTermino>::const_iterator pos = indice.cbegin();
+    pos != indice.cend(); pos++)
+  {
+    salida += pos->first + "\t" + pos->second.ToString() + "\n";
+  }
+
+  cout << salida;
+}
+
+/* Devuelve TRUE si el documento ha sido indexado y muestra por pantalla los términos
+    indexados del documento con ese nombre
+*/
+bool
+IndexadorHash::ListarTerminos (const string& nomDoc) const
+{
+  unordered_map<string, InfDoc>::const_iterator doc = indiceDocs.find(nomDoc);
+
+  if (doc != indiceDocs.cend())
+  { // Si el documento ha sido indexado
+    // Se buscan los términos indexados procendentes del mismo
+    string salida = "";
+    long int id = doc->second.getIdDoc();
+    // Recupera todos los términos indexados que pertenezcan a ese documento
+    for (unordered_map<string, InformacionTermino>::const_iterator pos = indice.cbegin();
+      pos != indice.cend(); pos++)
+    {
+      if (pos->second.perteneceAdoc(id))
+      { // Si el término pertenece al documento, se añade a la cadena de salida
+        salida += pos->first + pos->second.ToString() + "\n";
+      }
+    }
+    // Muestra el término y la información del término
+    cout << salida;
+
+    return true;
+  }
+
+  return false;
+}
+
+// Muestra el contenido de "indiceDocs"
+void
+IndexadorHash::ListarDocs () const
+{
+  string salida = "";
+
+  for (unordered_map<string, InfDoc>::const_iterator pos = indiceDocs.cbegin();
+    pos != indiceDocs.cend(); pos++)
+  {
+    salida += pos->first + "\t" + pos->second.ToString() + "\n";
+  }
+
+  cout << salida; 
+}
+
+// Devuelve TRUE si el documento ha sido indexado, y muestra por pantalla el nombre y la información
+bool
+IndexadorHash::ListarDocs (const string& nomDoc) const
+{
+  unordered_map<string, InfDoc>::const_iterator doc = indiceDocs.find(nomDoc);
+
+  if (doc != indiceDocs.cend())
+  { // Si el documento ha sido indexado
+    // Se muestra su información
+    string salida = nomDoc + "\t" + doc->second.ToString();
+    cout << salida;
+
     return true;
   }
 

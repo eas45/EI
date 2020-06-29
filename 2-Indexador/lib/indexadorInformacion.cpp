@@ -56,7 +56,7 @@ string
 InformacionTermino::ToString () const
 {
   string salida;
-  unsigned x = 0;
+
   salida = "Frecuencia total: " + to_string(ftc) + "\t" + to_string(l_docs.size());
   // A continuación se mostrarán todos los elementos de "l_docs"
   for (auto pos = l_docs.begin(); pos != l_docs.end(); pos++)
@@ -71,6 +71,16 @@ InfTermDoc
 InformacionTermino::getInfTermDoc (const long int& idDoc) const
 {
   return l_docs.at(idDoc);
+}
+
+void
+InformacionTermino::eliminarDoc (const long int& idDoc)
+{
+  unsigned int nEliminados = l_docs.erase(idDoc);
+
+  ftc -= nEliminados;
+
+  //return nEliminados;
 }
 
 /****************
@@ -225,6 +235,12 @@ InfDoc::getIdDoc () const
   return idDoc;
 }
 
+bool
+InformacionTermino::perteneceAdoc(const long int& id) const
+{
+  return (l_docs.find(id) != l_docs.cend());
+}
+
 /**********************
  *  InfColeccionDocs  *
  **********************/
@@ -282,6 +298,19 @@ InfColeccionDocs::operator= (const InfColeccionDocs& coleccionDocs)
 
 // Operador salida
 // TODO
+
+string
+InfColeccionDocs::ToString () const
+{
+  string salida;
+
+  salida = "numDocs: " + to_string(numDocs) + "\tnumTotalPal: " + to_string(numTotalPal) +
+    "\tnumTotalPalSinParada: " + to_string(numTotalPalSinParada) +
+    "\tnumTotalPalDiferentes: " + to_string(numTotalPalDiferentes) +
+    "\ttamBytes: " + to_string(tamBytes);
+
+  return salida;
+}
 
 /********************************
  *  InformacionTerminoPregunta  *
