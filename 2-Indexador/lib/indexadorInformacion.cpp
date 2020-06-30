@@ -44,12 +44,14 @@ InformacionTermino::operator= (const InformacionTermino& infoTermino)
 
 // ### OPERADOR SALIDA ###
 
-ostream& operator<< (ostream& s, const InformacionTermino& p) {
-  s << "Frecuencia total: " << p.ftc << "\tdf: " << p.l_docs.size();
-  // TODO
-  // A continuacion se mostraran todos los elementos de p.l_docs:
-  // s << "\tId.Doc: " << idDoc << "\t" << InfTermDoc;
+ostream& operator<< (ostream& s, const InformacionTermino& p)
+{
+  s << p.ToString();
+  
+  return s;
 }
+
+// ### MÉTODOS Y FUNCIONES ###
 
 // Lista la información del objeto
 string
@@ -67,6 +69,7 @@ InformacionTermino::ToString () const
   return salida;
 }
 
+// Devuelve la información del término en el documento correspondiente
 InfTermDoc
 InformacionTermino::getInfTermDoc (const long int& idDoc) const
 {
@@ -79,8 +82,6 @@ InformacionTermino::eliminarDoc (const long int& idDoc)
   unsigned int nEliminados = l_docs.erase(idDoc);
 
   ftc -= nEliminados;
-
-  //return nEliminados;
 }
 
 /****************
@@ -93,8 +94,6 @@ InformacionTermino::eliminarDoc (const long int& idDoc)
 InfTermDoc::InfTermDoc (const InfTermDoc& infoTerminoDoc)
 {
   ft = infoTerminoDoc.ft;
-  // TODO
-  // Solo almacenará esta información si el campo privado del indexador almacenarPosTerm == true;
   posTerm = infoTerminoDoc.posTerm;
 }
 
@@ -121,8 +120,6 @@ InfTermDoc::operator= (const InfTermDoc& infoTerminoDoc)
     this->~InfTermDoc();
     // Se copia
     ft = infoTerminoDoc.ft;
-    // TODO
-    // Solo almacenará esta información si el campo privado del indexador almacenarPosTerm == true;
     posTerm = infoTerminoDoc.posTerm;
   }
 }
@@ -131,14 +128,12 @@ InfTermDoc::operator= (const InfTermDoc& infoTerminoDoc)
 
 ostream& operator<< (ostream& s, const InfTermDoc& p)
 {
-  s << "ft: " << p.ft;
-  // TODO
-  /* A continuación se mostrarían todos los elementos de p.posTerm ("posicion TAB posicion TAB ... posicion, es decir,
-      nunca finalizará en un TAB"):
-    s << "\t" << posicion;
-  */
+  s << p.ToString();
+
  return s;
 }
+
+// ### MÉTODOS Y FUNCIONES ###
 
 string
 InfTermDoc::ToString () const
@@ -215,7 +210,14 @@ InfDoc::operator= (const InfDoc& infoDocumento)
 }
 
 // Operador salida
-// TODO
+ostream& operator<< (ostream& s, const InfDoc& p)
+{
+  s << p.ToString();
+
+  return s;
+}
+
+// ### MÉTODOS Y FUNCIONES ###
 
 string
 InfDoc::ToString () const
@@ -297,7 +299,12 @@ InfColeccionDocs::operator= (const InfColeccionDocs& coleccionDocs)
 }
 
 // Operador salida
-// TODO
+ostream& operator<< (ostream& s, const InfColeccionDocs& p)
+{
+  s << p.ToString();
+
+  return s;
+}
 
 string
 InfColeccionDocs::ToString () const
@@ -322,8 +329,7 @@ InfColeccionDocs::ToString () const
 InformacionTerminoPregunta::InformacionTerminoPregunta (const InformacionTerminoPregunta& infoTerminoPreg)
 {
   ft = infoTerminoPreg.ft;
-  // TODO
-  // Copia posTerm
+  posTerm = infoTerminoPreg.posTerm;
 }
 
 // Constructor por defecto
@@ -349,8 +355,6 @@ InformacionTerminoPregunta::operator= (const InformacionTerminoPregunta& infoTer
     this->~InformacionTerminoPregunta();
     // Se copia
     ft = infoTerminoPreg.ft;
-    // TODO
-    // Solo almacenará esta información si el campo privado del indexador almacenarPosTerm == true;
     posTerm = infoTerminoPreg.posTerm;
   }
 
@@ -358,7 +362,6 @@ InformacionTerminoPregunta::operator= (const InformacionTerminoPregunta& infoTer
 }
 
 // Operador salida
-// TODO
 ostream& operator<< (ostream& s, const InformacionTerminoPregunta& p)
 {
   s << p.ToString();
@@ -428,7 +431,12 @@ InformacionPregunta::operator= (const InformacionPregunta& infoPregunta)
 }
 
 // Operador salida
-// TODO
+ostream& operator<< (ostream& s, const InformacionPregunta& p)
+{
+  s << p.ToString();
+
+  return s;
+}
 
 string
 InformacionPregunta::ToString () const
@@ -439,4 +447,60 @@ InformacionPregunta::ToString () const
     to_string(numTotalPalSinParada) + "\tnumTotalPalDiferentes: " + to_string(numTotalPalDiferentes);
 
   return salida;
+}
+
+/**********
+ *  Fecha *
+ **********/
+
+// ### FORMA CANÓNICA ###
+
+// Constructor con parámetros
+Fecha::Fecha ()
+{
+  // Recupera la fecha actual del sistema
+  time(&fecha);
+}
+
+// Constructor de copia
+Fecha::Fecha (const Fecha& f)
+{
+  fecha = f.fecha;
+}
+
+// Destructor
+Fecha::~Fecha ()
+{
+  // Deja la fecha en 00:00 horas, 1 de enero de 2000 UTC
+  struct tm fInicio = {0};
+
+  fInicio.tm_hour = 0;
+  fInicio.tm_min = 0;
+  fInicio.tm_sec = 0;
+  fInicio.tm_year = 100;
+  fInicio.tm_mon = 0;
+  fInicio.tm_mday = 1;
+
+  fecha = mktime(&fInicio);
+}
+
+// Operador asignación
+Fecha&
+Fecha::operator= (const Fecha& f)
+{
+  if (this != &f)
+  {
+    fecha = f.fecha;
+  }
+
+  return *this;
+}
+
+
+// Compara si la fecha pasada es menor
+bool
+Fecha::operator< (const Fecha& f) const
+{
+  // La fecha es menor si f.fecha-fecha > 0
+  return (difftime(f.fecha, fecha) > 0);
 }

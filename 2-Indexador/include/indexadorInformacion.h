@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <list>
+#include <ctime>
+
 
 using namespace std;
 
@@ -178,8 +180,16 @@ class InformacionPregunta
 };
 
 class Fecha
-{
+{ 
+  public:
+    Fecha ();
+    Fecha (const Fecha&);
+    ~Fecha ();
+    Fecha& operator= (const Fecha&);
+    bool operator< (const Fecha&) const;
 
+  private:
+    time_t fecha;
 };
 
 #endif
