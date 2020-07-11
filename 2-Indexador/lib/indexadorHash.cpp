@@ -162,6 +162,104 @@ IndexadorHash::aplicarTratamiento (const string& palabra) const
   return aux;
 }
 
+// Devuelve TRUE si recuperan los documentos correctamente
+bool
+IndexadorHash::cargarDocsAindexar (const string& ficheroDocumentos, list<string>& listaDocs) const
+{
+  ifstream f;
+  f.open(ficheroDocumentos.c_str());
+
+  if (f.is_open())
+  {
+    string linea;
+    while (!f.eof())
+    {
+      getline(f, linea);
+      listaDocs.push_back(linea);
+    }
+    
+    f.close();
+
+    return true;
+  }
+
+  return false;
+}
+
+// Devuelve TRUE si se crea el índice para la colección de documentos de "ficheroDocumentos".
+bool
+IndexadorHash::Indexar (const string& ficheroDocumentos)
+{
+  list<string> listaDocsIndexar;
+  
+  if (cargarDocsAindexar(ficheroDocumentos, listaDocsIndexar))
+  { // Si se han cargado los ficheros correctamente
+    // Se indexa cada uno de ellos
+    try
+    {
+      ifstream fichero;
+      for (string doc : listaDocsIndexar)
+      { // Para cada documento
+        // Comprueba si ya ha sido indexado
+        unordered_map<string, InfDoc>::iterator itDoc = indiceDocs.find(doc);
+        if (itDoc == indiceDocs.end())
+        { // Si el documento NO ha sido indexado, se indexa
+          // Se crea la información del documento
+          
+        }
+        else
+        { // Si el documento ha sido previamente indexado
+          // Comprueba si la fecha de modificación es posterior a la ya almacenada
+          
+        }
+        
+      }
+    }
+    catch(const std::exception& e)
+    {
+      std::cerr << e.what() << '\n';
+    }
+  }
+  else
+  {
+    cout << "ERROR: En Indexar con el documento " << ficheroDocumentos << endl;
+  }
+
+  return false;
+}
+
+/* Se guardará en disco duro (incluidos todos los parámetros de la parte privada)
+    Devolverá TRUE si finaliza la operación correcctamente
+*/
+bool  // TODO
+IndexadorHash::GuardarIndexacion () const
+{
+  // Se crean los punteros para manejar la ruta del directorio
+  DIR *directorio;
+  struct dirent *entrada;
+
+  // Se intenta abrir el directorio de "directorioIndice"
+  directorio = opendir(directorioIndice.c_str());
+  if (!directorio)
+  { // Si no existe
+    // Se crea
+    string comando = "mkdir " + directorioIndice;
+    system(comando.c_str());
+    // Se vuelve a intentar abrir el directorio
+    directorio = opendir(directorioIndice.c_str());
+  }
+
+  if (directorio)
+  { // Si el directorio existe o ha sido creado correctamente
+    // Abre o crea el fichero donde se guardará la indexación
+    ofstream ficheroIndexacion(NOMBRE_INDEX.c_str());
+
+    //ficheroIndexacion << 
+  }  
+
+  return false;
+}
+
 // Lista el contenido del campo "indice" y del campo "indiceDocs"
 void
 IndexadorHash::ImprimirIndexacion () const

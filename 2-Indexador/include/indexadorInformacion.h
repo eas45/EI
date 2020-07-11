@@ -13,6 +13,19 @@ using namespace std;
 
 class InfTermDoc;
 
+class Fecha
+{ 
+  public:
+    Fecha ();
+    Fecha (const Fecha&);
+    ~Fecha ();
+    Fecha& operator= (const Fecha&);
+    bool operator< (const Fecha&) const;
+
+  private:
+    time_t fecha;
+};
+
 // Clase en la que se implementará la generación de información para la indexación
 class InformacionTermino
 {
@@ -80,6 +93,7 @@ class InfDoc
     // MÉTODOS Y FUNCIONES
     string ToString () const;
     long int getIdDoc () const;
+    Fecha getFechaModificacion () const;
 
   private:
     /* Identificador del documento. El primer documento indexado en la
@@ -177,19 +191,6 @@ class InformacionPregunta
         (sin acumular la frecuencia de cada una de ellas)
     */
    long int numTotalPalDiferentes;
-};
-
-class Fecha
-{ 
-  public:
-    Fecha ();
-    Fecha (const Fecha&);
-    ~Fecha ();
-    Fecha& operator= (const Fecha&);
-    bool operator< (const Fecha&) const;
-
-  private:
-    time_t fecha;
 };
 
 #endif

@@ -84,6 +84,12 @@ InformacionTermino::eliminarDoc (const long int& idDoc)
   ftc -= nEliminados;
 }
 
+bool
+InformacionTermino::perteneceAdoc(const long int& id) const
+{
+  return (l_docs.find(id) != l_docs.cend());
+}
+
 /****************
  *  InfTermDoc  *
  ****************/
@@ -237,10 +243,10 @@ InfDoc::getIdDoc () const
   return idDoc;
 }
 
-bool
-InformacionTermino::perteneceAdoc(const long int& id) const
+Fecha
+InfDoc::getFechaModificacion () const
 {
-  return (l_docs.find(id) != l_docs.cend());
+  return fechaModificacion;
 }
 
 /**********************

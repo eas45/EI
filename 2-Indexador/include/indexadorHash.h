@@ -8,6 +8,7 @@
 #include "tokenizador.h"
 #include "stemmer.h"
 #include <utility>
+#include <dirent.h>
 
 class IndexadorHash
 {
@@ -121,6 +122,9 @@ class IndexadorHash
     bool almacenarStopWords ();
     void stemming(string&) const;
     string aplicarTratamiento (const string&) const;
+    bool cargarDocsAindexar (const string&, list<string>&) const;
 };
+
+static const string NOMBRE_INDEX = "indexacion.txt";
 
 #endif
