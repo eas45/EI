@@ -118,13 +118,26 @@ class IndexadorHash
     bool almacenarEnDisco;
     bool almacenarPosTerm;
 
+    static long int id;
+
     // MÉTODOS Y FUNCIONES
     bool almacenarStopWords ();
     void stemming(string&) const;
     string aplicarTratamiento (const string&) const;
     bool cargarDocsAindexar (const string&, list<string>&) const;
+    int calcularTamDocumento (const string&) const;
+    void indexarDocumento (const string&, const unordered_map<string, InfDoc>::iterator&);
+
+    void actualizarIndice (const string&, const InformacionTermino&);
+    void actualizarIndiceDocs (const long int&, const InfDoc&);
+    void actualizarInformacionColeccionDocs (/*...*/);
 };
 
+// Fichero donde se guarda la indexación
 static const string NOMBRE_INDEX = "indexacion.txt";
+// Almacena el id del siguiente documento a indexar
+long int IndexadorHash::id = 1;
+// Fichero donde se guarda la tokenización de un fichero antes de ser indexado
+static const string FICHERO_TOKEN = "tok.tk";
 
 #endif

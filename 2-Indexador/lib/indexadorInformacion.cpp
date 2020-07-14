@@ -90,6 +90,19 @@ InformacionTermino::perteneceAdoc(const long int& id) const
   return (l_docs.find(id) != l_docs.cend());
 }
 
+void
+InformacionTermino::incrementarFrecuenciaColeccion ()
+{
+  ftc++;
+}
+
+// Inserta la pareja de id de un documento con la información del término en ese documento
+void
+InformacionTermino::anyadirDoc (const long int& id, const InfTermDoc& info)
+{
+  l_docs.insert(pair<long int, InfTermDoc>(id, info));
+}
+
 /****************
  *  InfTermDoc  *
  ****************/
@@ -154,6 +167,18 @@ InfTermDoc::ToString () const
   }
 
   return salida;
+}
+
+void
+InfTermDoc::incrementarFrecuencia ()
+{
+  ft++;
+}
+
+void
+InfTermDoc::anyadirPosicion (const int& pos)
+{
+  posTerm.push_back(pos);
 }
 
 /************
@@ -223,6 +248,18 @@ ostream& operator<< (ostream& s, const InfDoc& p)
   return s;
 }
 
+// ### CONSTRUCTORES ###
+
+// Inicializa el documento con una id
+InfDoc::InfDoc (long int& id)
+{
+  idDoc = id;
+  numPal = 0;
+  numPalSinParada = 0;
+  numPalDiferentes = 0;
+  tamBytes = 0;
+}
+
 // ### MÉTODOS Y FUNCIONES ###
 
 string
@@ -247,6 +284,42 @@ Fecha
 InfDoc::getFechaModificacion () const
 {
   return fechaModificacion;
+}
+
+void
+InfDoc::setId (const long int& id)
+{
+  idDoc = id;
+}
+
+void
+InfDoc::setNumPal (const int& nPals)
+{
+  numPal = nPals;
+}
+
+void
+InfDoc::setTamBytes (const int& tam)
+{
+  tamBytes = tam;
+}
+
+void
+InfDoc::setFechaMod (const time_t& f)
+{
+  fechaModificacion.setFecha(f);
+}
+
+void
+InfDoc::incrementarNumPalSinParada ()
+{
+  numPalSinParada++;
+}
+
+void
+InfDoc::incrementarNumPalDiferentes ()
+{
+  numPalDiferentes++;
 }
 
 /**********************
@@ -323,6 +396,18 @@ InfColeccionDocs::ToString () const
     "\ttamBytes: " + to_string(tamBytes);
 
   return salida;
+}
+
+long int
+InfColeccionDocs::getNumDocs () const
+{
+  return numDocs;
+}
+
+void
+InfColeccionDocs::incrementarNumDocs ()
+{
+  numDocs++;
 }
 
 /********************************
@@ -502,11 +587,16 @@ Fecha::operator= (const Fecha& f)
   return *this;
 }
 
-
 // Compara si la fecha pasada es menor
 bool
 Fecha::operator< (const Fecha& f) const
 {
   // La fecha es menor si f.fecha-fecha > 0
   return (difftime(f.fecha, fecha) > 0);
+}
+
+void
+Fecha::setFecha (const time_t& f)
+{
+  fecha = f;
 }

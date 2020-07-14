@@ -21,6 +21,7 @@ class Fecha
     ~Fecha ();
     Fecha& operator= (const Fecha&);
     bool operator< (const Fecha&) const;
+    void setFecha (const time_t&);
 
   private:
     time_t fecha;
@@ -43,6 +44,8 @@ class InformacionTermino
     bool perteneceAdoc(const long int&) const;
     // Busca el idDoc en "l_docs" y lo borra si aparece
     void eliminarDoc (const long int&);
+    void incrementarFrecuenciaColeccion ();
+    void anyadirDoc (const long int&, const InfTermDoc&);
 
   private:
     // Frecuencia total del término en la colección
@@ -66,6 +69,8 @@ class InfTermDoc
     InfTermDoc& operator= (const InfTermDoc&);
     // MÉTODOS Y FUNCIONES
     string ToString () const;
+    void incrementarFrecuencia ();
+    void anyadirPosicion(const int&);
 
   private:
     // Frecuencia del término en el documento
@@ -88,12 +93,19 @@ class InfDoc
   public:
     InfDoc (const InfDoc&);
     InfDoc ();
+    InfDoc (long int&);
     ~InfDoc ();
     InfDoc& operator= (const InfDoc&);
     // MÉTODOS Y FUNCIONES
     string ToString () const;
     long int getIdDoc () const;
     Fecha getFechaModificacion () const;
+    void setId (const long int&);
+    void setNumPal (const int&);
+    void setTamBytes (const int&);
+    void setFechaMod (const time_t&);
+    void incrementarNumPalSinParada ();
+    void incrementarNumPalDiferentes ();
 
   private:
     /* Identificador del documento. El primer documento indexado en la
@@ -128,6 +140,8 @@ class InfColeccionDocs
     InfColeccionDocs& operator= (const InfColeccionDocs&);
     // MÉTODOS Y FUNCIONES
     string ToString () const;
+    long int getNumDocs () const;
+    void incrementarNumDocs ();
 
   private:
     // Nº total de documentos en la colección

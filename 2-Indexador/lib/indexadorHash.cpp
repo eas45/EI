@@ -186,6 +186,94 @@ IndexadorHash::cargarDocsAindexar (const string& ficheroDocumentos, list<string>
   return false;
 }
 
+int
+IndexadorHash::calcularTamDocumento (const string& doc) const
+{
+  FILE *auxDoc;
+  int tam;
+
+  auxDoc = fopen(doc.c_str(), "r");
+  fseek(auxDoc, 0L, SEEK_END);
+  tam = ftell(auxDoc);
+  fclose(auxDoc);
+
+  return tam;
+}
+
+// Indexa el documento que se pasa por parámetro
+void
+IndexadorHash::indexarDocumento (const string& nombreDoc, const unordered_map<string, InfDoc>::iterator& itDoc)
+{
+  // Se recupera la tokenización, para indexar las palabras del documento
+  ifstream token;
+  token.open(FICHERO_TOKEN.c_str());
+
+  // Se recupera la tokenización
+  string linea;
+  list<string> tokenizacion;
+  if (token.is_open())
+  {
+    while (!token.eof())
+    {
+      getline(token, linea);
+      tokenizacion.push_back(linea);
+    }
+    token.close();
+  }
+  // Se crea la información del documento
+  //InfDoc infoDocumento (id);
+  //id++;
+  // Se calcula el tamaño del fichero
+  //infoDocumento.setTamBytes(calcularTamDocumento(nombreDoc));
+  itDoc->second.setTamBytes(calcularTamDocumento(nombreDoc));
+  // Se almacena la cantidad de palabras del documento
+  //infoDocumento.setNumPal(tokenizacion.size());
+  itDoc->second.setNumPal(tokenizacion.size());
+  // Se indexa cada palabra
+  string palabra;
+  int posicionPal = -1;
+  // Número de palabras sin stopwords en el documento
+  int auxNumPalSinParada = 0;
+  // Número de palabras diferentes en el documento
+  int auxNumPalDiferentes = 0;
+  // Posición de la palabra en el ínidice
+  unordered_map<string, InformacionTermino>::iterator posIndice;
+  for (list<string>::const_iterator pos = tokenizacion.cbegin(); pos != tokenizacion.cend(); pos++)
+  {
+    posicionPal++;
+    palabra = aplicarTratamiento(pos->data());
+    posIndice = indice.find(palabra);
+    if (stopWords.find(palabra) != stopWords.cend())
+    { // Si la palabra no es una stopword (si lo es, se ignora)
+      // Se incrementa el número de palabras que no son stopwords en el documento
+      //infoDocumento.incrementarNumPalSinParada();
+      // itDoc->second.incrementarNumPalSinParada();
+      auxNumPalSinParada++;
+      if (posIndice != indice.end())
+      { // Si la palabra NO ha sido indexada previamente, se inserta
+        posIndice = indice.insert(pair<string, InformacionTermino>(palabra, InformacionTermino())).first;
+
+        // Se creará la información del término en el documento
+        // InfTermDoc infoTerminoDoc;
+        // infoTerminoDoc.incrementarFrecuencia();
+        // infoTerminoDoc.anyadirPosicion(posicionPal);
+        // Y la información del término (en general)
+        // InformacionTermino infoTermino;
+        // infoTermino.incrementarFrecuenciaColeccion();
+        // infoTermino.anyadirDoc(id, infoTerminoDoc);
+
+        // Por último, se actualizan los índices de la clase
+        // Se inserta la palabra en el índice
+        //indice.insert(pair<string, InformacionTermino>(palabra, itDoc->second));
+        // Se inserta el documento en el índice de documentos
+        //indiceDocs.insert(pair<string, InfDoc>(nombreDoc, infoDocumento));
+        // Se incrementan los valores de la colección de documentos
+
+      }
+    }
+  }
+}
+
 // Devuelve TRUE si se crea el índice para la colección de documentos de "ficheroDocumentos".
 bool
 IndexadorHash::Indexar (const string& ficheroDocumentos)
@@ -197,23 +285,42 @@ IndexadorHash::Indexar (const string& ficheroDocumentos)
     // Se indexa cada uno de ellos
     try
     {
-      ifstream fichero;
+      int auxNumDocs = 0;
+      pair<unordered_map<string, InfDoc>::iterator, bool> insercionDoc;
       for (string doc : listaDocsIndexar)
       { // Para cada documento
+        // Se intenta insertar
+        insercionDoc = indiceDocs.insert(pair<string, InfDoc>(doc, InfDoc()));
+        if (insercionDoc.second)
+        { // Si el documento ha sido insertado
+          // Se le asigna una id
+          insercionDoc.first->second.setId(id);
+          auxNumDocs++;
+        }
+
+
         // Comprueba si ya ha sido indexado
         unordered_map<string, InfDoc>::iterator itDoc = indiceDocs.find(doc);
         if (itDoc == indiceDocs.end())
-        { // Si el documento NO ha sido indexado, se indexa
-          // Se crea la información del documento
-          
+        { // Si el documento NO ha sido indexado
+          // Se inserta en el índice de documentos y se guarda la posición en la que se ha insertado
+          itDoc = indiceDocs.insert(pair<string, InfDoc>(doc, InfDoc(id))).first;
+          // Se actualiza el valor de los documentos totales indexados
+          informacionColeccionDocs.incrementarNumDocs();
+          // Se tokeniza el documento
+          tok.Tokenizar(doc, FICHERO_TOKEN);
+          // Se indexa
+          indexarDocumento(doc, itDoc);
+          id++;
         }
-        else
+        else if (itDoc->second.getFechaModificacion() )
         { // Si el documento ha sido previamente indexado
           // Comprueba si la fecha de modificación es posterior a la ya almacenada
           
         }
         
       }
+
     }
     catch(const std::exception& e)
     {
