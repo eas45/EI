@@ -373,6 +373,29 @@ IndexadorHash::Indexar (const string& ficheroDocumentos)
   return false;
 }
 
+bool
+IndexadorHash::IndexarDirectorio (const string& dirAIndexar)
+{
+  // Puntero para abrir el directorio
+  DIR *directorio;
+  // Información del fichero que se lee
+  struct dirent *infFichero;
+
+  // Se abre el directorio
+  directorio = opendir(dirAIndexar.c_str());
+  if (directorio)
+  { // El directorio existe
+    string comando = "find " + dirAIndexar + " -type f | sort > " + FICHERO_DIRECTORIO;
+    system(comando.c_str());
+
+    closedir(directorio);
+    return Indexar(FICHERO_DIRECTORIO);
+  }
+
+  //cout << "ERROR: No se pudo abrir el directorio " << dirAIndexar << endl;
+  return false;
+}
+
 /* Se guardará en disco duro (incluidos todos los parámetros de la parte privada)
     Devolverá TRUE si finaliza la operación correcctamente
 */

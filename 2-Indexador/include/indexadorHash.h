@@ -139,5 +139,7 @@ class IndexadorHash
 static const string NOMBRE_INDEX = "indexacion.txt";
 // Fichero donde se guarda la tokenización de un fichero antes de ser indexado
 static const string FICHERO_TOKEN = "tok.tk";
+// Fichero donde se guardan los ficheros del directorio a indexar
+static const string FICHERO_DIRECTORIO = "fich_directorio.txt";
 
 #endif
