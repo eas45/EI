@@ -22,9 +22,37 @@ class Fecha
     Fecha& operator= (const Fecha&);
     bool operator< (const Fecha&) const;
     void setFecha (const time_t&);
+    time_t getFecha() const;
 
   private:
     time_t fecha;
+};
+
+class InfTermDoc
+{
+  friend ostream& operator<< (ostream&, const InfTermDoc&);
+  // -- Implementado en el enunciado (p. 4)
+
+  public:
+    InfTermDoc (const InfTermDoc&);
+    InfTermDoc ();    // Inicializa ft = 0;
+    ~InfTermDoc ();   // Pone ft = 0;
+    InfTermDoc& operator= (const InfTermDoc&);
+    // MÉTODOS Y FUNCIONES
+    string ToString () const;
+    void incrementarFrecuencia (const int&);
+
+  private:
+    // Frecuencia del término en el documento
+    int ft;
+    /* Solo se almacenará esta información si el campo privado del indexador
+        almacenar PosTerm == true
+       Lista de números de palabra en los que aparece el término en el
+        documento. Los números de palabra comenzarán desde cero (la primera
+        palabra del documento). Se numerarán las palabras de parada. Estará
+        ordenada de menor a mayor posición.
+    */
+    list<int> posTerm;
 };
 
 // Clase en la que se implementará la generación de información para la indexación
@@ -44,8 +72,7 @@ class InformacionTermino
     bool perteneceAdoc(const long int&) const;
     // Busca el idDoc en "l_docs" y lo borra si aparece
     void eliminarDoc (const long int&);
-    void incrementarFrecuenciaColeccion ();
-    void anyadirDoc (const long int&, const InfTermDoc&);
+    void incrementarFrecuencia (const long int&, const int&);
 
   private:
     // Frecuencia total del término en la colección
@@ -55,34 +82,6 @@ class InformacionTermino
         aparición del término en el documento
     */
     unordered_map<long int, InfTermDoc> l_docs;
-};
-
-class InfTermDoc
-{
-  friend ostream& operator<< (ostream&, const InfTermDoc&);
-  // -- Implementado en el enunciado (p. 4)
-
-  public:
-    InfTermDoc (const InfTermDoc&);
-    InfTermDoc ();    // Inicializa ft = 0;
-    ~InfTermDoc ();   // Pone ft = 0;
-    InfTermDoc& operator= (const InfTermDoc&);
-    // MÉTODOS Y FUNCIONES
-    string ToString () const;
-    void incrementarFrecuencia ();
-    void anyadirPosicion(const int&);
-
-  private:
-    // Frecuencia del término en el documento
-    int ft;
-    /* Solo se almacenará esta información si el campo privado del indexador
-        almacenar PosTerm == true
-       Lista de números de palabra en los que aparece el término en el
-        documento. Los números de palabra comenzarán desde cero (la primera
-        palabra del documento). Se numerarán las palabras de parada. Estará
-        ordenada de menor a mayor posición.
-    */
-    list<int> posTerm;
 };
 
 class InfDoc

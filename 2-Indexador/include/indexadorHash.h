@@ -127,6 +127,7 @@ class IndexadorHash
     bool cargarDocsAindexar (const string&, list<string>&) const;
     int calcularTamDocumento (const string&) const;
     void indexarDocumento (const string&, const unordered_map<string, InfDoc>::iterator&);
+    void reindexarDocumento (const string&, const unordered_map<string, InfDoc>::iterator&, const off_t&, const time_t&);
 
     void actualizarIndice (const string&, const InformacionTermino&);
     void actualizarIndiceDocs (const long int&, const InfDoc&);
@@ -135,8 +136,6 @@ class IndexadorHash
 
 // Fichero donde se guarda la indexación
 static const string NOMBRE_INDEX = "indexacion.txt";
-// Almacena el id del siguiente documento a indexar
-long int IndexadorHash::id = 1;
 // Fichero donde se guarda la tokenización de un fichero antes de ser indexado
 static const string FICHERO_TOKEN = "tok.tk";
 

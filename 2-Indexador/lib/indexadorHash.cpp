@@ -1,5 +1,8 @@
 #include "indexadorHash.h"
 
+// Almacena el id del siguiente documento a indexar
+long int IndexadorHash::id = 1;
+
 // ### FORMA CANÓNICA ###
 
 // Constructor de copia
@@ -41,7 +44,7 @@ IndexadorHash::~IndexadorHash ()
   infPregunta.~InformacionPregunta();
   stopWords.clear();
   ficheroStopWords.clear();
-  tok.~Tokenizador();
+  //tok.~Tokenizador();
   tipoStemmer = 0;
   almacenarEnDisco = false;
   almacenarPosTerm = false;
@@ -71,6 +74,12 @@ IndexadorHash::operator= (const IndexadorHash& indexador)
   }
 
   return *this;
+}
+
+// Operador salida
+ostream& operator<< (ostream& s, const IndexadorHash& p)
+{
+  return s;
 }
 
 // ### CONTRUCTORES ###
@@ -220,14 +229,10 @@ IndexadorHash::indexarDocumento (const string& nombreDoc, const unordered_map<st
     }
     token.close();
   }
-  // Se crea la información del documento
-  //InfDoc infoDocumento (id);
-  //id++;
-  // Se calcula el tamaño del fichero
-  //infoDocumento.setTamBytes(calcularTamDocumento(nombreDoc));
+  
+  // Se almacena el tamaño en bytes del documento
   itDoc->second.setTamBytes(calcularTamDocumento(nombreDoc));
   // Se almacena la cantidad de palabras del documento
-  //infoDocumento.setNumPal(tokenizacion.size());
   itDoc->second.setNumPal(tokenizacion.size());
   // Se indexa cada palabra
   string palabra;
@@ -236,42 +241,45 @@ IndexadorHash::indexarDocumento (const string& nombreDoc, const unordered_map<st
   int auxNumPalSinParada = 0;
   // Número de palabras diferentes en el documento
   int auxNumPalDiferentes = 0;
+  // Número de nuevas palabras indexadas
+  int auxNuevasPal = 0;
   // Posición de la palabra en el ínidice
-  unordered_map<string, InformacionTermino>::iterator posIndice;
+  pair<unordered_map<string, InformacionTermino>::iterator, bool> insercionPal;
+
   for (list<string>::const_iterator pos = tokenizacion.cbegin(); pos != tokenizacion.cend(); pos++)
   {
     posicionPal++;
     palabra = aplicarTratamiento(pos->data());
-    posIndice = indice.find(palabra);
     if (stopWords.find(palabra) != stopWords.cend())
     { // Si la palabra no es una stopword (si lo es, se ignora)
       // Se incrementa el número de palabras que no son stopwords en el documento
-      //infoDocumento.incrementarNumPalSinParada();
-      // itDoc->second.incrementarNumPalSinParada();
       auxNumPalSinParada++;
-      if (posIndice != indice.end())
-      { // Si la palabra NO ha sido indexada previamente, se inserta
-        posIndice = indice.insert(pair<string, InformacionTermino>(palabra, InformacionTermino())).first;
-
-        // Se creará la información del término en el documento
-        // InfTermDoc infoTerminoDoc;
-        // infoTerminoDoc.incrementarFrecuencia();
-        // infoTerminoDoc.anyadirPosicion(posicionPal);
-        // Y la información del término (en general)
-        // InformacionTermino infoTermino;
-        // infoTermino.incrementarFrecuenciaColeccion();
-        // infoTermino.anyadirDoc(id, infoTerminoDoc);
-
-        // Por último, se actualizan los índices de la clase
-        // Se inserta la palabra en el índice
-        //indice.insert(pair<string, InformacionTermino>(palabra, itDoc->second));
-        // Se inserta el documento en el índice de documentos
-        //indiceDocs.insert(pair<string, InfDoc>(nombreDoc, infoDocumento));
-        // Se incrementan los valores de la colección de documentos
-
+      // Se intenta insertar la palabra
+      insercionPal = indice.insert(pair<string, InformacionTermino>(palabra,InformacionTermino()));
+      if (insercionPal.second)
+      { // Si la palabra se ha insertado (es nueva en el índice)
+        // Se incrementa el número de nuevas palabras indexadas
+        auxNuevasPal++;
+        // Se incrementa el número de palabras diferentes en el documento
+        auxNumPalDiferentes++;
       }
+      else if (!insercionPal.first->second.perteneceAdoc(itDoc->second.getIdDoc()))
+      { // Si es nueva en el documento
+        // Se incrementa el número de palabras diferentes en el documento
+        auxNumPalDiferentes++;
+      }
+      // Se incrementa la frecuencia del término
+      insercionPal.first->second.incrementarFrecuencia(itDoc->second.getIdDoc(), posicionPal);
     }
   }
+}
+
+void
+IndexadorHash::reindexarDocumento (const string& nombreDoc, const unordered_map<string, InfDoc>::iterator& itDoc, const off_t& tamB, const time_t& fMod)
+{
+  long int auxId = itDoc->second.getIdDoc();
+  // Se elimina toda la información del de los índices
+  // TODO
 }
 
 // Devuelve TRUE si se crea el índice para la colección de documentos de "ficheroDocumentos".
@@ -292,33 +300,27 @@ IndexadorHash::Indexar (const string& ficheroDocumentos)
         // Se intenta insertar
         insercionDoc = indiceDocs.insert(pair<string, InfDoc>(doc, InfDoc()));
         if (insercionDoc.second)
-        { // Si el documento ha sido insertado
+        { // Si el documento ha sido insertado (no había sido indexado)
           // Se le asigna una id
           insercionDoc.first->second.setId(id);
+          // Se incrementa el número de documentos en la indexación
           auxNumDocs++;
-        }
-
-
-        // Comprueba si ya ha sido indexado
-        unordered_map<string, InfDoc>::iterator itDoc = indiceDocs.find(doc);
-        if (itDoc == indiceDocs.end())
-        { // Si el documento NO ha sido indexado
-          // Se inserta en el índice de documentos y se guarda la posición en la que se ha insertado
-          itDoc = indiceDocs.insert(pair<string, InfDoc>(doc, InfDoc(id))).first;
-          // Se actualiza el valor de los documentos totales indexados
-          informacionColeccionDocs.incrementarNumDocs();
-          // Se tokeniza el documento
-          tok.Tokenizar(doc, FICHERO_TOKEN);
-          // Se indexa
-          indexarDocumento(doc, itDoc);
+          // Se indexa el documento
+          indexarDocumento(doc, insercionDoc.first);
+          // Se incrementa la id del documento, para el siguiente
           id++;
         }
-        else if (itDoc->second.getFechaModificacion() )
-        { // Si el documento ha sido previamente indexado
-          // Comprueba si la fecha de modificación es posterior a la ya almacenada
-          
+        else
+        { // Si ya había sido indexado
+          // Se extrae la información del fichero
+          struct stat infoFichero;
+          stat(doc.c_str(), &infoFichero);
+          if (difftime(infoFichero.st_mtime, insercionDoc.first->second.getFechaModificacion().getFecha()) > 0)
+          { // Si la fecha de modificación es más reciente (mayor)
+            // Se reindexa
+            reindexarDocumento(doc, insercionDoc.first, infoFichero.st_size, infoFichero.st_mtime);
+          }
         }
-        
       }
 
     }

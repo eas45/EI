@@ -90,17 +90,16 @@ InformacionTermino::perteneceAdoc(const long int& id) const
   return (l_docs.find(id) != l_docs.cend());
 }
 
-void
-InformacionTermino::incrementarFrecuenciaColeccion ()
-{
-  ftc++;
-}
-
 // Inserta la pareja de id de un documento con la información del término en ese documento
 void
-InformacionTermino::anyadirDoc (const long int& id, const InfTermDoc& info)
+InformacionTermino::incrementarFrecuencia (const long int& id, const int& posicion)
 {
-  l_docs.insert(pair<long int, InfTermDoc>(id, info));
+  // Aumenta la frecuencia del término en la colección
+  ftc++;
+  // Inserta el documento en el que aparece el término
+  unordered_map<long int, InfTermDoc>::iterator insercionDoc = l_docs.insert(pair<long int, InfTermDoc>(id, InfTermDoc())).first;
+  // Incrementa la frecuencia del término en el documento e inserta la posición en la que se encuentra
+  insercionDoc->second.incrementarFrecuencia(posicion);
 }
 
 /****************
@@ -169,15 +168,13 @@ InfTermDoc::ToString () const
   return salida;
 }
 
+// Aumenta la frecuencia del término en un documento y se añade la posición en la que se encuentra
 void
-InfTermDoc::incrementarFrecuencia ()
+InfTermDoc::incrementarFrecuencia (const int& pos)
 {
+  // Aumenta la frecuencia del término
   ft++;
-}
-
-void
-InfTermDoc::anyadirPosicion (const int& pos)
-{
+  // Inserta la posición en la que se ha encontrado
   posTerm.push_back(pos);
 }
 
@@ -599,4 +596,10 @@ void
 Fecha::setFecha (const time_t& f)
 {
   fecha = f;
+}
+
+time_t
+Fecha::getFecha () const
+{
+  return fecha;
 }
