@@ -99,12 +99,13 @@ class InfDoc
     string ToString () const;
     long int getIdDoc () const;
     Fecha getFechaModificacion () const;
+    int getTamBytes () const;
     void setId (const long int&);
     void setNumPal (const int&);
     void setTamBytes (const int&);
     void setFechaMod (const time_t&);
-    void incrementarNumPalSinParada ();
-    void incrementarNumPalDiferentes ();
+    void incrementarNumPalSinParada (const int&);
+    void incrementarNumPalDiferentes (const int&);
 
   private:
     /* Identificador del documento. El primer documento indexado en la
@@ -140,7 +141,11 @@ class InfColeccionDocs
     // MÉTODOS Y FUNCIONES
     string ToString () const;
     long int getNumDocs () const;
-    void incrementarNumDocs ();
+    void incrementarNumDocs (const long int&);
+    void incrementarNumTotalPal (const long int&);
+    void incrementarNumTotalPalSinParada (const long int&);
+    void incrementarNumTotalPalDiferentes (const long int&);
+    void incrementarTamBytes (const long int&);
 
   private:
     // Nº total de documentos en la colección
@@ -169,6 +174,7 @@ class InformacionTerminoPregunta
     InformacionTerminoPregunta& operator= (const InformacionTerminoPregunta&);
     // MÉTODOS Y FUNCIONES
     string ToString () const;
+    void incrementarFrecuencia (const int&);
 
   private:
     // Frecuencia total del término en la pregunta
@@ -193,7 +199,11 @@ class InformacionPregunta
     InformacionPregunta ();
     ~InformacionPregunta ();
     InformacionPregunta& operator= (const InformacionPregunta&);
+    // MÉTODOS Y FUNCIONES
     string ToString() const;
+    void incrementarNumTotalPal (const int&);
+    void incrementarNumTotalPalSinParada (const int&);
+    void incrementarNumTotalPalDiferentes (const int&);
 
   private:
     // Nº total de palabras en la pregunta

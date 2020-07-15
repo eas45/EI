@@ -121,6 +121,7 @@ class IndexadorHash
     static long int id;
 
     // MÉTODOS Y FUNCIONES
+    string ToString () const;
     bool almacenarStopWords ();
     void stemming(string&) const;
     string aplicarTratamiento (const string&) const;

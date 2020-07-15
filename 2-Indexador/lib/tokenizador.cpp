@@ -675,9 +675,19 @@ Tokenizador::TokenizarDirectorio (const string& dirAIndexar) const
 
 ostream& operator<< (ostream& os, const Tokenizador& token)
 {
-  os << "DELIMITADORES: " << token.delimiters <<
-        " TRATA CASOS ESPECIALES: " << token.casosEspeciales <<
-        " PASAR A MINUSCULAS Y SIN ACENTOS: " << token.pasarAminuscSinAcentos;
+  os << token.ToString();
+}
+
+string
+Tokenizador::ToString () const
+{
+  string salida;
+
+  salida = "DELIMITADORES: " + delimiters
+    + " TRATA CASOS ESPECIALES: " + to_string(casosEspeciales)
+    + " PASAR A MINUSCULAS Y SIN ACENTOS: " + to_string(pasarAminuscSinAcentos);
+
+  return salida;
 }
 
 // PRÁCTICA INDEXADOR

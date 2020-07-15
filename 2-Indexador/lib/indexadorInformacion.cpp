@@ -59,7 +59,7 @@ InformacionTermino::ToString () const
 {
   string salida;
 
-  salida = "Frecuencia total: " + to_string(ftc) + "\t" + to_string(l_docs.size());
+  salida = "Frecuencia total: " + to_string(ftc) + "\t" + "fd: " + to_string(l_docs.size());
   // A continuación se mostrarán todos los elementos de "l_docs"
   for (auto pos = l_docs.begin(); pos != l_docs.end(); pos++)
   { // Se coloca en cada una de las posiciones de la tabla hash
@@ -283,6 +283,12 @@ InfDoc::getFechaModificacion () const
   return fechaModificacion;
 }
 
+int
+InfDoc::getTamBytes () const
+{
+  return tamBytes;
+}
+
 void
 InfDoc::setId (const long int& id)
 {
@@ -308,15 +314,15 @@ InfDoc::setFechaMod (const time_t& f)
 }
 
 void
-InfDoc::incrementarNumPalSinParada ()
+InfDoc::incrementarNumPalSinParada (const int& num = 1)
 {
-  numPalSinParada++;
+  numPalSinParada += num;
 }
 
 void
-InfDoc::incrementarNumPalDiferentes ()
+InfDoc::incrementarNumPalDiferentes (const int& num = 1)
 {
-  numPalDiferentes++;
+  numPalDiferentes += num;
 }
 
 /**********************
@@ -402,9 +408,33 @@ InfColeccionDocs::getNumDocs () const
 }
 
 void
-InfColeccionDocs::incrementarNumDocs ()
+InfColeccionDocs::incrementarNumDocs (const long int& num = 1)
 {
-  numDocs++;
+  numDocs += num;
+}
+
+void
+InfColeccionDocs::incrementarNumTotalPal (const long int& num = 1)
+{
+  numTotalPal += num;
+}
+
+void
+InfColeccionDocs::incrementarNumTotalPalSinParada (const long int& num = 1)
+{
+  numTotalPalSinParada += num;
+}
+
+void
+InfColeccionDocs::incrementarNumTotalPalDiferentes (const long int& num = 1)
+{
+  numTotalPalDiferentes += num;
+}
+
+void
+InfColeccionDocs::incrementarTamBytes (const long int& num)
+{
+  tamBytes += num;
 }
 
 /********************************
@@ -453,22 +483,33 @@ InformacionTerminoPregunta::operator= (const InformacionTerminoPregunta& infoTer
 ostream& operator<< (ostream& s, const InformacionTerminoPregunta& p)
 {
   s << p.ToString();
+
+  return s;
 }
 
 // Lista la información del objeto
 string
 InformacionTerminoPregunta::ToString () const
 {
-  string salida = "";
+  string salida;
 
-  salida += "ft: " + ft;
+  salida = "ft: " + to_string(ft);
   // A continuación se mostrarán todos los elementos de "posTerm"
   for (list<int>::const_iterator pos = posTerm.begin(); pos != posTerm.end(); pos++)
   {
-    salida += "\t" + *pos;
+    salida += "\t" + to_string(*pos);
   }
 
   return salida;
+}
+
+void
+InformacionTerminoPregunta::incrementarFrecuencia (const int& posicion)
+{
+  // Se incrementa la frecuencia
+  ft++;
+  // Se inserta la posición en la que se ha encontrado la palabra
+  posTerm.push_back(posicion);
 }
 
 /************************
@@ -535,6 +576,24 @@ InformacionPregunta::ToString () const
     to_string(numTotalPalSinParada) + "\tnumTotalPalDiferentes: " + to_string(numTotalPalDiferentes);
 
   return salida;
+}
+
+void
+InformacionPregunta::incrementarNumTotalPal (const int& num = 1)
+{
+  numTotalPal += num;
+}
+
+void
+InformacionPregunta::incrementarNumTotalPalSinParada (const int& num = 1)
+{
+  numTotalPalSinParada += num;
+}
+
+void
+InformacionPregunta::incrementarNumTotalPalDiferentes (const int& num = 1)
+{
+  numTotalPalDiferentes += num;
 }
 
 /**********

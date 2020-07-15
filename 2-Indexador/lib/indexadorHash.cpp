@@ -79,7 +79,25 @@ IndexadorHash::operator= (const IndexadorHash& indexador)
 // Operador salida
 ostream& operator<< (ostream& s, const IndexadorHash& p)
 {
+  s << p.ToString();
+
   return s;
+}
+
+string
+IndexadorHash::ToString () const
+{
+  string salida;
+
+  salida = "Fichero con el listado de palabras de parada: " + ficheroStopWords + "\n"
+    + "Tokenizador: " + tok.ToString() + "\n"
+    + "Directorio donde se almacenara el indice generado: " + directorioIndice + "\n"
+    + "Stemmer utilizado: " + to_string(tipoStemmer) + "\n"
+    + "Informacion de la coleccion indexada: " + informacionColeccionDocs.ToString() + "\n"
+    + "Se almacenara parte del indice en disco duro: " + to_string(almacenarEnDisco) + "\n"
+    + "Se almacenaran las posiciones de los terminos: " + to_string(almacenarPosTerm) + "\n";
+
+    return salida;
 }
 
 // ### CONTRUCTORES ###
@@ -89,7 +107,7 @@ IndexadorHash::IndexadorHash (const string& fichStopWords, const string& delimit
   const bool& detectComp, const bool& minuscSinAcentos, const string& dirIndice,
   const int& tStemmer, const bool& almEnDisco, const bool& almPosTerm)
 {
-  ficheroStopWords = ficheroStopWords;
+  ficheroStopWords = fichStopWords;
   // Almacena todas las stopwords del fichero
   almacenarStopWords();
   // Se inicializa el tokenizador
@@ -184,7 +202,10 @@ IndexadorHash::cargarDocsAindexar (const string& ficheroDocumentos, list<string>
     while (!f.eof())
     {
       getline(f, linea);
-      listaDocs.push_back(linea);
+      if (!linea.empty())
+      {
+        listaDocs.push_back(linea);
+      }
     }
     
     f.close();
@@ -225,7 +246,10 @@ IndexadorHash::indexarDocumento (const string& nombreDoc, const unordered_map<st
     while (!token.eof())
     {
       getline(token, linea);
-      tokenizacion.push_back(linea);
+      if (!linea.empty())
+      {
+        tokenizacion.push_back(linea);
+      }
     }
     token.close();
   }
@@ -250,7 +274,7 @@ IndexadorHash::indexarDocumento (const string& nombreDoc, const unordered_map<st
   {
     posicionPal++;
     palabra = aplicarTratamiento(pos->data());
-    if (stopWords.find(palabra) != stopWords.cend())
+    if (stopWords.find(palabra) == stopWords.cend())
     { // Si la palabra no es una stopword (si lo es, se ignora)
       // Se incrementa el número de palabras que no son stopwords en el documento
       auxNumPalSinParada++;
@@ -272,6 +296,14 @@ IndexadorHash::indexarDocumento (const string& nombreDoc, const unordered_map<st
       insercionPal.first->second.incrementarFrecuencia(itDoc->second.getIdDoc(), posicionPal);
     }
   }
+  // Se actualizan los campos de la información del documento
+  itDoc->second.incrementarNumPalSinParada(auxNumPalSinParada);
+  itDoc->second.incrementarNumPalDiferentes(auxNumPalDiferentes);
+  // Se actualizan los campos de la informcación de la colección de documentos
+  informacionColeccionDocs.incrementarNumTotalPal(tokenizacion.size());
+  informacionColeccionDocs.incrementarNumTotalPalSinParada(auxNumPalSinParada);
+  informacionColeccionDocs.incrementarNumTotalPalDiferentes(auxNuevasPal);
+  informacionColeccionDocs.incrementarTamBytes(itDoc->second.getTamBytes());
 }
 
 void
@@ -293,7 +325,7 @@ IndexadorHash::Indexar (const string& ficheroDocumentos)
     // Se indexa cada uno de ellos
     try
     {
-      int auxNumDocs = 0;
+      long int auxNumDocs = 0;
       pair<unordered_map<string, InfDoc>::iterator, bool> insercionDoc;
       for (string doc : listaDocsIndexar)
       { // Para cada documento
@@ -305,6 +337,8 @@ IndexadorHash::Indexar (const string& ficheroDocumentos)
           insercionDoc.first->second.setId(id);
           // Se incrementa el número de documentos en la indexación
           auxNumDocs++;
+          // Se tokeniza
+          tok.Tokenizar(doc, FICHERO_TOKEN);
           // Se indexa el documento
           indexarDocumento(doc, insercionDoc.first);
           // Se incrementa la id del documento, para el siguiente
@@ -322,11 +356,13 @@ IndexadorHash::Indexar (const string& ficheroDocumentos)
           }
         }
       }
-
+      informacionColeccionDocs.incrementarNumDocs(auxNumDocs);
+      return true;
     }
     catch(const std::exception& e)
     {
       std::cerr << e.what() << '\n';
+      return false;
     }
   }
   else
@@ -394,19 +430,102 @@ IndexadorHash::ImprimirIndexacion () const
 bool
 IndexadorHash::IndexarPregunta (const string& preg)
 {
-  return true;
+  // Se vacían campos
+  indicePregunta.clear();
+  infPregunta.~InformacionPregunta();
+
+  if (!preg.empty())
+  {
+    try
+    {
+      pregunta = preg;
+      // Número de palabras que no son stopword en la pregunta
+      int auxNumPalSinParada = 0;
+      // Número de nuevas palabras indexadas
+      int auxNuevasPal = 0;
+      // Posición de la palabra en la pregunta
+      int posicion = -1;
+
+      // Se tokeniza
+      list<string> tokenizacion;
+      tok.Tokenizar(preg, tokenizacion);
+      // Se almacena la cantidad de palabras de la pregunta
+      infPregunta.incrementarNumTotalPal(tokenizacion.size());
+      
+      // Para cada palabra
+      for (string palabra : tokenizacion)
+      {
+        posicion++;
+        if (stopWords.find(palabra) == stopWords.cend())
+        { // Si no es una stopword
+          auxNumPalSinParada++;
+          // Se inserta en el índice de la pregunta
+          pair<unordered_map<string, InformacionTerminoPregunta>::iterator, bool> insercionPal = indicePregunta.insert(pair<string, InformacionTerminoPregunta>(palabra, InformacionTerminoPregunta()));
+          if (insercionPal.second)
+          { // Si ha sido insertado (nueva palabra)
+            auxNuevasPal++;
+          }
+          // Se incrementa la frecuencia del término en la pregunta y se almacena la posición en la que aparece la palabra en la pregunta
+          insercionPal.first->second.incrementarFrecuencia(posicion);
+        }
+      }
+      // Se incrementa el número de palabras que no son stopwords en la pregunta
+      infPregunta.incrementarNumTotalPalSinParada(auxNumPalSinParada);
+      // Se actualiza el número de palabras diferentes en la pregunta
+      infPregunta.incrementarNumTotalPalDiferentes(auxNuevasPal);
+
+      return true;
+    }
+    catch(const std::exception& e)
+    {
+      std::cerr << e.what() << '\n';
+    }
+  }
+
+  cout << "ERROR: No se ha podido indexar la pregunta al estar vacía\n";
+  return false;
 }
 
 bool
 IndexadorHash::DevuelvePregunta (string& preg) const
 {
-  return true;
+  if (!indicePregunta.empty())
+  {
+    preg = pregunta;
+
+    return true;
+  }
+
+  return false;
+}
+
+bool
+IndexadorHash::DevuelvePregunta (const string& word, InformacionTerminoPregunta& inf) const
+{
+  string palabra = aplicarTratamiento(word);
+  unordered_map<string, InformacionTerminoPregunta>::const_iterator posicion = indicePregunta.find(palabra);
+
+  if (posicion != indicePregunta.cend())
+  { // Si encuentra la palabra  
+    inf = posicion->second;
+
+    return true;
+  }
+
+  return false;
 }
 
 bool
 IndexadorHash::DevuelvePregunta (InformacionPregunta& inf) const
 {
-  return true;
+  if (!indicePregunta.empty())
+  {
+    inf = infPregunta;
+
+    return true;
+  }
+
+  return false;
 }
 
 void
@@ -416,7 +535,7 @@ IndexadorHash::ImprimirIndexacionPregunta ()
 
   salida = "Pregunta indexada: " + pregunta + "\nTerminos indexados en la pregunta: \n";
   // Se lista el contenido de "indicePregunta"
-  for (auto pos = indicePregunta.begin(); pos != indicePregunta.end(); pos++)
+  for (unordered_map<string, InformacionTerminoPregunta>::const_iterator pos = indicePregunta.cbegin(); pos != indicePregunta.cend(); pos++)
   {
     salida += pos->first + "\t" + pos->second.ToString() + "\n";
   }
@@ -737,7 +856,7 @@ IndexadorHash::ListarDocs (const string& nomDoc) const
   { // Si el documento ha sido indexado
     // Se muestra su información
     string salida = nomDoc + "\t" + doc->second.ToString();
-    cout << salida;
+    cout << salida << endl;
 
     return true;
   }

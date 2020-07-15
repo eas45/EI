@@ -100,6 +100,7 @@ class Tokenizador {
 
   // MÉTODOS Y FUNCIONES
   string UsarMinuscSinAcentos(const string&) const;
+  string ToString () const;
 };
 // Número de delimitadores posibles
 static const short N_DELIMITERS = 36;
