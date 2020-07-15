@@ -22,8 +22,12 @@ InformacionTermino::InformacionTermino ()
 // Destructor
 InformacionTermino::~InformacionTermino ()
 {
-  ftc = 0;
-  l_docs.clear();
+  if (ftc != 0)
+  {
+    ftc = 0;
+    l_docs.clear();
+  }
+  
 }
 
 // Operador asignacion
@@ -79,9 +83,11 @@ InformacionTermino::getInfTermDoc (const long int& idDoc) const
 void
 InformacionTermino::eliminarDoc (const long int& idDoc)
 {
-  unsigned int nEliminados = l_docs.erase(idDoc);
-
-  ftc -= nEliminados;
+  unordered_map<long int, InfTermDoc>::iterator posicion = l_docs.find(idDoc);
+  // Actualiza la frecuencia de la colección
+  ftc -= posicion->second.getFrecuencia();
+  // Elimina el documento de la lista de documento donde aparece
+  l_docs.erase(idDoc);
 }
 
 bool
@@ -100,6 +106,12 @@ InformacionTermino::incrementarFrecuencia (const long int& id, const int& posici
   unordered_map<long int, InfTermDoc>::iterator insercionDoc = l_docs.insert(pair<long int, InfTermDoc>(id, InfTermDoc())).first;
   // Incrementa la frecuencia del término en el documento e inserta la posición en la que se encuentra
   insercionDoc->second.incrementarFrecuencia(posicion);
+}
+
+bool
+InformacionTermino::l_docsVacio () const
+{
+  return l_docs.empty();
 }
 
 /****************
@@ -124,8 +136,11 @@ InfTermDoc::InfTermDoc ()
 // Destructor
 InfTermDoc::~InfTermDoc ()
 {
-  ft = 0;
-  posTerm.clear();
+  if (ft != 0)
+  {
+    ft = 0;
+    posTerm.clear();
+  }
 }
 
 // Operador asignación
@@ -166,6 +181,12 @@ InfTermDoc::ToString () const
   }
 
   return salida;
+}
+
+int
+InfTermDoc::getFrecuencia () const
+{
+  return ft;
 }
 
 // Aumenta la frecuencia del término en un documento y se añade la posición en la que se encuentra
@@ -214,7 +235,7 @@ InfDoc::~InfDoc ()
   numPalSinParada = 0;
   numPalDiferentes = 0;
   tamBytes = 0;
-  fechaModificacion.~Fecha();
+  fechaModificacion = Fecha();
 }
 
 // Operador asignación
@@ -275,6 +296,24 @@ long int
 InfDoc::getIdDoc () const
 {
   return idDoc;
+}
+
+int
+InfDoc::getNumPal () const
+{
+  return numPal;
+}
+
+int
+InfDoc::getNumPalSinParada () const
+{
+  return numPalSinParada;
+}
+
+int
+InfDoc::getNumPalDiferentes () const
+{
+  return numPalDiferentes;
 }
 
 Fecha
@@ -435,6 +474,12 @@ void
 InfColeccionDocs::incrementarTamBytes (const long int& num)
 {
   tamBytes += num;
+}
+
+void
+InfColeccionDocs::setNumTotalPalDiferentes (const long int& num)
+{
+  numTotalPalDiferentes = num;
 }
 
 /********************************

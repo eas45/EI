@@ -40,6 +40,7 @@ class InfTermDoc
     InfTermDoc& operator= (const InfTermDoc&);
     // MÉTODOS Y FUNCIONES
     string ToString () const;
+    int getFrecuencia () const;
     void incrementarFrecuencia (const int&);
 
   private:
@@ -73,6 +74,7 @@ class InformacionTermino
     // Busca el idDoc en "l_docs" y lo borra si aparece
     void eliminarDoc (const long int&);
     void incrementarFrecuencia (const long int&, const int&);
+    bool l_docsVacio () const;
 
   private:
     // Frecuencia total del término en la colección
@@ -98,6 +100,9 @@ class InfDoc
     // MÉTODOS Y FUNCIONES
     string ToString () const;
     long int getIdDoc () const;
+    int getNumPal () const;
+    int getNumPalSinParada () const;
+    int getNumPalDiferentes () const;
     Fecha getFechaModificacion () const;
     int getTamBytes () const;
     void setId (const long int&);
@@ -146,6 +151,7 @@ class InfColeccionDocs
     void incrementarNumTotalPalSinParada (const long int&);
     void incrementarNumTotalPalDiferentes (const long int&);
     void incrementarTamBytes (const long int&);
+    void setNumTotalPalDiferentes (const long int&);
 
   private:
     // Nº total de documentos en la colección

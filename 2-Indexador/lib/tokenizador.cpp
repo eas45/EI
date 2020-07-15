@@ -41,7 +41,7 @@ Tokenizador::operator= (const Tokenizador& token)
 {
   if (this != &token)
   {
-    (*this).~Tokenizador();
+    //this->~Tokenizador();
     Copia(token);
   }
 }

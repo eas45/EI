@@ -194,6 +194,7 @@ bool
 IndexadorHash::cargarDocsAindexar (const string& ficheroDocumentos, list<string>& listaDocs) const
 {
   ifstream f;
+  struct stat infoFichcero;
   f.open(ficheroDocumentos.c_str());
 
   if (f.is_open())
@@ -204,7 +205,15 @@ IndexadorHash::cargarDocsAindexar (const string& ficheroDocumentos, list<string>
       getline(f, linea);
       if (!linea.empty())
       {
-        listaDocs.push_back(linea);
+        if (stat(linea.c_str(), &infoFichcero) == 0)
+        { // Si el fichero existe
+          listaDocs.push_back(linea);
+        }
+        else
+        {
+          cout << "ERROR: No se ha encontrado el fichero " << linea << endl;
+        }
+        
       }
     }
     
@@ -311,7 +320,17 @@ IndexadorHash::reindexarDocumento (const string& nombreDoc, const unordered_map<
 {
   long int auxId = itDoc->second.getIdDoc();
   // Se elimina toda la información del de los índices
-  // TODO
+  BorraDoc(nombreDoc);
+  // Se vuelve a insertar el documento
+  unordered_map<string, InfDoc>::iterator posicion = indiceDocs.insert(pair<string, InfDoc>(nombreDoc,InfDoc())).first;
+  // Se establece la antigua id del documento
+  posicion->second.setId(auxId);
+  // Se establece la fecha de modificación
+  posicion->second.setFechaMod(fMod);
+  // Se establece el tamaño del documento
+  posicion->second.setTamBytes(tamB);
+  // Se indexa
+  indexarDocumento(nombreDoc, itDoc);
 }
 
 // Devuelve TRUE si se crea el índice para la colección de documentos de "ficheroDocumentos".
@@ -590,8 +609,6 @@ IndexadorHash::Devuelve (const string& word, InformacionTermino& inf) const
     inf = indice.at(palabra);
     return true;
   }
-  // Si no encuentra el término, devuelve inf vacío
-  inf.~InformacionTermino();
 
   return false;
 }
@@ -646,22 +663,51 @@ bool
 IndexadorHash::BorraDoc (const string& nomDoc)
 {
   // Se recupera el puntero del nombre del documento
-  unordered_map<string, InfDoc>::const_iterator doc = indiceDocs.find(nomDoc);
+  unordered_map<string, InfDoc>::iterator posicion = indiceDocs.find(nomDoc);
 
-  if (doc != indiceDocs.cend())
-  { // Si lo ha encontrado
+  if (posicion != indiceDocs.end())
+  {
+    // Se actualizan los datos de la colección (incrementando en negativo)
+    informacionColeccionDocs.incrementarNumDocs(-1);
+    informacionColeccionDocs.incrementarNumTotalPal(-posicion->second.getNumPal());
+    informacionColeccionDocs.incrementarNumTotalPalSinParada(-posicion->second.getNumPalSinParada());
+    //informacionColeccionDocs.incrementarNumTotalPalDiferentes(-posicion->second.getNumPalDiferentes());
+    informacionColeccionDocs.incrementarTamBytes(-posicion->second.getTamBytes());
+
     // Se borran todos los términos del documento
-    long int id = doc->second.getIdDoc();
+    long int id = posicion->second.getIdDoc();
     // Se busca en todos los términos indexados
     unordered_map<long int, InfTermDoc>::const_iterator posIndice;
-    for (unordered_map<string, InformacionTermino>::iterator pos = indice.begin(); 
-      pos != indice.end(); pos++)
+    // Controla que la posición anterior tenga que ser eliminada
+    string eliminar = "";
+    for (unordered_map<string, InformacionTermino>::iterator pos = indice.begin(); pos != indice.end(); pos++)
     { // Para cada elemento del índice
-      // Intenta eliminar el término indexado del documento de igual id
-      pos->second.eliminarDoc(id);
+      if (!eliminar.empty())
+      { // Si hay un término para eliminar
+        indice.erase(eliminar);
+        eliminar = "";
+      }
+      // Comprueba que pertenezca al documento
+      if (pos->second.perteneceAdoc(id))
+      { // Si pertenece al documento
+        // Se elimina
+        pos->second.eliminarDoc(id);
+        if (pos->second.l_docsVacio())
+        { // Si el término no aparece en más documentos, se debe eliminar
+          eliminar = pos->first;
+        }
+      }
     }
-    // Después se elimina de la colección de documentos
-    // TODO
+    // Para comprobar si el último también debe ser eliminado
+    if (!eliminar.empty())
+    { // Si hay un término para eliminar
+      indice.erase(eliminar);
+    }
+
+    // Después se actualiza la colección de documentos
+    informacionColeccionDocs.setNumTotalPalDiferentes(indice.size());
+    // Se elimina del índice de documentos
+    indiceDocs.erase(nomDoc);
 
     return true;
   }
